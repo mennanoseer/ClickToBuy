@@ -18,7 +18,7 @@ This project is developed as part of a data engineering course. It includes:
 
 ---
 
-## ⚙️ Technologies Used
+## Technologies Used
 
 - **Laravel** – PHP framework for backend development
 - **MySQL** – Relational database, managed with phpMyAdmin
