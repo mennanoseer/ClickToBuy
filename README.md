@@ -32,8 +32,8 @@ This project is developed as part of a data engineering course. It includes:
 
 ## Deliverables
 
-- [x] **Written Proposal** – See [`docs/proposal.pdf`](docs/proposal.md)
-- [x] **Software Requirements Specification (SRS)** – See [`docs/SRS.pdf`](docs/SRS.md)
+- [x] **Written Proposal** – See [`docs/proposal.pdf`](docs/proposal.pdf)
+- [x] **Software Requirements Specification (SRS)** – See [`docs/SRS.pdf`](docs/SRS.pdf)
 - [x] **Entity-Relationship Diagram (ERD) & Enhanced ERD (EERD)** – See below and [`docs/ERD.png`](docs/ERD.png)
 
   ![ERD Preview](docs/ERD.png)
