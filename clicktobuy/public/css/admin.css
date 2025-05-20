@@ -134,6 +134,11 @@ body {
     opacity: 0.4;
 }
 
+/* Utility classes */
+.margin-left-0 {
+    margin-left: 0 !important;
+}
+
 /* Responsive adjustments */
 @media (max-width: 991.98px) {
     .sidebar {
