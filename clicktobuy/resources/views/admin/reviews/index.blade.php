@@ -48,6 +48,14 @@
                             <label for="date_to">Date To</label>
                             <input type="date" class="form-control" name="date_to" id="date_to" value="{{ request('date_to') }}">
                         </div>
+                        <div class="form-group">
+                            <label for="moderation_status">Moderation Status</label>
+                            <select class="form-control" name="moderation_status" id="moderation_status">
+                                <option value="">All Reviews</option>
+                                <option value="needs_review" {{ request('moderation_status') == 'needs_review' ? 'selected' : '' }}>Needs Review</option>
+                                <option value="approved" {{ request('moderation_status') == 'approved' ? 'selected' : '' }}>Approved</option>
+                            </select>
+                        </div>
                         <button type="submit" class="btn btn-primary btn-block">Apply Filters</button>
                         <a href="{{ route('admin.reviews.index') }}" class="btn btn-secondary btn-block">Clear Filters</a>
                     </form>
@@ -70,8 +78,13 @@
                     </thead>
                     <tbody>
                         @foreach($reviews as $review)
-                        <tr>
-                            <td>{{ $review->review_id }}</td>
+                        <tr class="{{ $review->requires_moderation ? 'table-warning' : '' }}">
+                            <td>
+                                {{ $review->review_id }}
+                                @if($review->requires_moderation)
+                                    <span class="badge bg-warning text-dark">Needs Review</span>
+                                @endif
+                            </td>
                             <td>
                                 <a href="{{ route('admin.products.edit', $review->product_id) }}">
                                     {{ $review->product->name }}
@@ -96,6 +109,14 @@
                                     <a href="{{ route('admin.reviews.show', $review->review_id) }}" class="btn btn-sm btn-info" title="View Review">
                                         <i class="fas fa-eye"></i>
                                     </a>
+                                    @if($review->requires_moderation)
+                                    <form action="{{ route('admin.reviews.approve', $review->review_id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-success" title="Approve Review">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                    @endif
                                     <form action="{{ route('admin.reviews.destroy', $review->review_id) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')

@@ -17,6 +17,10 @@ class Order extends Model
         'status',
         'customer_id',
     ];
+    
+    protected $casts = [
+        'order_date' => 'datetime',
+    ];
 
     public function customer()
     {
@@ -36,5 +40,10 @@ class Order extends Model
     public function shipment()
     {
         return $this->hasOne(Shipment::class, 'order_id');
+    }
+    
+    public function status_history()
+    {
+        return $this->hasMany(OrderStatusHistory::class, 'order_id')->orderBy('created_at', 'desc');
     }
 }

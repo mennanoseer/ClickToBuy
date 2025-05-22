@@ -1,0 +1,109 @@
+/* Cart and Wishlist Styles */
+
+/* Button animations */
+.btn-flash {
+    animation: flash 0.5s;
+}
+
+@keyframes flash {
+    0% {
+        background-color: #28a745;
+    }
+    50% {
+        background-color: #5cb85c;
+    }
+    100% {
+        background-color: #28a745;
+    }
+}
+
+.heart-pulse {
+    animation: heartbeat 0.5s;
+    color: #dc3545;
+}
+
+@keyframes heartbeat {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.3);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Product cards */
+.product-card {
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Cart and wishlist counters */
+.cart-count, .wishlist-count {
+    position: relative;
+}
+
+.badge {
+    font-size: 0.6rem;
+    position: absolute;
+    top: -8px;
+    right: -8px;
+}
+
+/* Quantity controls */
+.quantity-control {
+    display: flex;
+    align-items: center;
+}
+
+.quantity-control .btn {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.quantity-input {
+    width: 50px;
+    text-align: center;
+    margin: 0 5px;
+}
+
+/* Empty states */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+/* Wishlist item card */
+.wishlist-item {
+    position: relative;
+}
+
+.wishlist-item .remove-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

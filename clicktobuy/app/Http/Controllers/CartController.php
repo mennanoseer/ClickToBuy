@@ -21,7 +21,20 @@ class CartController extends Controller
      */
     public function index()
     {
+        if (!auth()->user()->customer) {
+            return redirect()->route('home')->with('error', 'Customer profile not found.');
+        }
+        
         $cart = auth()->user()->customer->cart;
+        
+        if (!$cart) {
+            // Create cart if it doesn't exist
+            $cart = Cart::create([
+                'customer_id' => auth()->user()->customer->customer_id,
+                'created_date' => now(),
+            ]);
+        }
+        
         return view('cart.index', compact('cart'));
     }
 

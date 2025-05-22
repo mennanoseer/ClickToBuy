@@ -51,12 +51,15 @@
                                             </td>
                                             <td>${{ number_format($item->product->price, 2) }}</td>
                                             <td>
-                                                <form action="{{ route('cart.update', $item->cart_item_id) }}" method="POST" class="d-flex align-items-center">
+                                                <form action="{{ route('cart.update', $item->cart_item_id) }}" method="POST" class="quantity-control">
                                                     @csrf
                                                     @method('PATCH')
-                                                    <input type="number" name="quantity" value="{{ $item->quantity }}" min="1" max="{{ $item->product->stock }}" class="form-control form-control-sm" style="width: 60px;">
-                                                    <button type="submit" class="btn btn-sm btn-outline-primary ms-2">
-                                                        <i class="fas fa-sync-alt"></i>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary decrement-btn" {{ $item->quantity <= 1 ? 'disabled' : '' }}>
+                                                        <i class="fas fa-minus"></i>
+                                                    </button>
+                                                    <input type="number" name="quantity" value="{{ $item->quantity }}" min="1" max="{{ $item->product->stock }}" class="form-control form-control-sm quantity-input" style="width: 60px;" readonly>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary increment-btn" {{ $item->quantity >= $item->product->stock ? 'disabled' : '' }}>
+                                                        <i class="fas fa-plus"></i>
                                                     </button>
                                                 </form>
                                             </td>
@@ -122,13 +125,27 @@
         </div>
     @else
         <div class="card">
-            <div class="card-body text-center py-5">
-                <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
-                <h3>Your cart is empty</h3>
+            <div class="card-body empty-state">
+                <i class="fas fa-shopping-cart fa-4x mb-3 text-muted"></i>
+                <h3>Your Cart is Empty</h3>
                 <p class="mb-4">Looks like you haven't added any products to your cart yet.</p>
-                <a href="{{ route('products.index') }}" class="btn btn-primary">
-                    <i class="fas fa-shopping-bag me-1"></i> Start Shopping
-                </a>
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
+                        <a href="{{ route('products.index') }}" class="btn btn-primary w-100">
+                            <i class="fas fa-shopping-bag me-2"></i> Browse Products
+                        </a>
+                    </div>
+                </div>
+                @auth
+                    @if(isset(Auth::user()->customer->wishlist) && Auth::user()->customer->wishlist->wishlistItems->count() > 0)
+                        <div class="mt-4 pt-4 border-top">
+                            <p>You have {{ Auth::user()->customer->wishlist->wishlistItems->count() }} items in your wishlist</p>
+                            <a href="{{ route('wishlist.index') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-heart me-2"></i> View Your Wishlist
+                            </a>
+                        </div>
+                    @endif
+                @endauth
             </div>
         </div>
     @endif

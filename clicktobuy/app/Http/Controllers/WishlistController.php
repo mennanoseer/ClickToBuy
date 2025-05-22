@@ -21,7 +21,20 @@ class WishlistController extends Controller
      */
     public function index()
     {
+        if (!auth()->user()->customer) {
+            return redirect()->route('home')->with('error', 'Customer profile not found.');
+        }
+        
         $wishlist = auth()->user()->customer->wishlist;
+        
+        if (!$wishlist) {
+            // Create wishlist if it doesn't exist
+            $wishlist = Wishlist::create([
+                'customer_id' => auth()->user()->customer->customer_id,
+                'created_date' => now(),
+            ]);
+        }
+        
         return view('wishlist.index', compact('wishlist'));
     }
 

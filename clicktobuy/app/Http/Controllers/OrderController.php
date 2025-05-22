@@ -52,13 +52,26 @@ class OrderController extends Controller
      */
     public function confirmation($id)
     {
-        $order = Order::findOrFail($id);
-        
-        // Ensure the order belongs to the authenticated user
-        if ($order->customer_id != auth()->user()->customer->customer_id) {
-            return redirect()->route('orders.index')->with('error', 'Unauthorized access.');
+        try {
+            $order = Order::with([
+                'orderItems.product', 
+                'payment', 
+                'payment.creditCardPayment', 
+                'payment.paypalPayment', 
+                'payment.bankTransferPayment', 
+                'shipment', 
+                'customer', 
+                'customer.user'
+            ])->findOrFail($id);
+            
+            // Ensure the order belongs to the authenticated user
+            if ($order->customer_id != auth()->user()->customer->customer_id) {
+                return redirect()->route('orders.index')->with('error', 'Unauthorized access.');
+            }
+            
+            return view('orders.confirmation', compact('order'));
+        } catch (\Exception $e) {
+            return redirect()->route('orders.index')->with('error', 'There was a problem accessing your order details: ' . $e->getMessage());
         }
-        
-        return view('orders.confirmation', compact('order'));
     }
 }

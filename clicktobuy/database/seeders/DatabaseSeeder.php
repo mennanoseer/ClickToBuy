@@ -84,5 +84,10 @@ class DatabaseSeeder extends Seeder
                 'category_id' => rand(1, 6),
             ]);
         }
+        
+        // Run additional seeders
+        $this->call([
+            NotificationSeeder::class,
+        ]);
     }
 }

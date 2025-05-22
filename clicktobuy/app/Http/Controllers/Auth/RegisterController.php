@@ -63,10 +63,31 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return User::create([
-            'name' => $data['name'],
+        $user = User::create([
+            'user_name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
+
+        // Create customer record
+        $customer = \App\Models\Customer::create([
+            'customer_id' => $user->user_id,
+            'registration_date' => now(),
+            'loyalty_points' => 0,
+        ]);
+
+        // Create cart for the customer
+        $cart = \App\Models\Cart::create([
+            'customer_id' => $customer->customer_id,
+            'created_date' => now(),
+        ]);
+
+        // Create wishlist for the customer
+        $wishlist = \App\Models\Wishlist::create([
+            'customer_id' => $customer->customer_id,
+            'created_date' => now(),
+        ]);
+
+        return $user;
     }
 }

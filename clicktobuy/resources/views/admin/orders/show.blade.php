@@ -1,5 +1,9 @@
 @extends('layouts.admin')
 
+@section('styles')
+<link href="{{ asset('css/admin-order-details.css') }}" rel="stylesheet">
+@endsection
+
 @section('content')
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -13,6 +17,9 @@
             </button>
         </div>
     </div>
+    
+    <!-- Order Timeline -->
+    @include('admin.orders.partials.status-timeline')
 
     <div class="row">
         <!-- Order Information -->
@@ -33,7 +40,7 @@
                     <div class="row mb-3">
                         <div class="col-md-5 font-weight-bold text-gray-800">Status:</div>
                         <div class="col-md-7">
-                            <span class="badge badge-{{ 
+                            <span class="badge status-badge badge-{{ 
                                 $order->status == 'pending' ? 'warning' : 
                                 ($order->status == 'processing' ? 'info' : 
                                 ($order->status == 'shipped' ? 'primary' : 
@@ -68,7 +75,7 @@
                     <h6 class="m-0 font-weight-bold text-primary">Update Order Status</h6>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('admin.orders.updateStatus', $order->order_id) }}" method="POST">
+                    <form id="updateStatusForm" action="{{ route('admin.orders.updateStatus', $order->order_id) }}" method="POST">
                         @csrf
                         @method('PATCH')
                         <div class="form-group">
@@ -81,8 +88,121 @@
                                 <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-block">Update Status</button>
+                        <div class="form-group">
+                            <label for="note">Note (Optional)</label>
+                            <textarea class="form-control" id="note" name="note" rows="2" placeholder="Add a note about this status change"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block" id="updateStatusBtn">Update Status</button>
                     </form>
+                    <div id="statusUpdateMessage" class="mt-2 text-center" style="display: none;"></div>
+                    
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const form = document.getElementById('updateStatusForm');
+                        
+                        form.addEventListener('submit', function(e) {
+                            e.preventDefault();
+                            
+                            const formData = new FormData(form);
+                            const messageDiv = document.getElementById('statusUpdateMessage');
+                            const submitBtn = document.getElementById('updateStatusBtn');
+                            
+                            submitBtn.disabled = true;
+                            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+                            
+                            fetch(form.action, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                messageDiv.textContent = data.message;
+                                messageDiv.className = 'mt-2 text-center alert alert-success';
+                                messageDiv.style.display = 'block';
+                                
+                                // Update the status badge in the order info
+                                const statusBadge = document.querySelector('.status-badge');
+                                const newStatus = document.getElementById('status').value;
+                                
+                                if (statusBadge) {
+                                    // Remove old status classes
+                                    statusBadge.classList.remove('badge-warning', 'badge-info', 'badge-primary', 'badge-success', 'badge-danger');
+                                    
+                                    // Add appropriate class
+                                    if (newStatus === 'pending') {
+                                        statusBadge.classList.add('badge-warning');
+                                        statusBadge.textContent = 'Pending';
+                                    } else if (newStatus === 'processing') {
+                                        statusBadge.classList.add('badge-info');
+                                        statusBadge.textContent = 'Processing';
+                                    } else if (newStatus === 'shipped') {
+                                        statusBadge.classList.add('badge-primary');
+                                        statusBadge.textContent = 'Shipped';
+                                    } else if (newStatus === 'delivered') {
+                                        statusBadge.classList.add('badge-success');
+                                        statusBadge.textContent = 'Delivered';
+                                    } else if (newStatus === 'cancelled') {
+                                        statusBadge.classList.add('badge-danger');
+                                        statusBadge.textContent = 'Cancelled';
+                                    }
+                                }
+                                
+                                // Add new status to history section
+                                const historyList = document.querySelector('.list-group-flush');
+                                if (historyList) {
+                                    setTimeout(() => {
+                                        location.reload();
+                                    }, 1500);
+                                }
+                                
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = 'Update Status';
+                            })
+                            .catch(error => {
+                                messageDiv.textContent = 'An error occurred. Please try again.';
+                                messageDiv.className = 'mt-2 text-center alert alert-danger';
+                                messageDiv.style.display = 'block';
+                                
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = 'Update Status';
+                                console.error('Error:', error);
+                            });
+                        });
+                    });
+                    </script>
+                </div>
+            </div>
+            
+            <!-- Status History -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Status History</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        @forelse($order->status_history as $history)
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Changed to <strong>{{ ucfirst($history->status) }}</strong></h6>
+                                <small>{{ $history->created_at->format('M d, Y h:i A') }}</small>
+                            </div>
+                            <p class="mb-1">
+                                <small class="text-muted">From {{ ucfirst($history->previous_status) }}</small>
+                            </p>
+                            @if($history->note)
+                                <p class="mb-1">{{ $history->note }}</p>
+                            @endif
+                            <small>By {{ $history->user ? $history->user->user_name : 'System' }}</small>
+                        </div>
+                        @empty
+                        <div class="list-group-item">
+                            <p class="mb-0">No status history available.</p>
+                        </div>
+                        @endforelse
+                    </div>
                 </div>
             </div>
             
@@ -194,10 +314,10 @@
                                     <td>
                                         <div class="d-flex align-items-center">
                                             @if($item->product && $item->product->image_url)
-                                                <img src="{{ asset($item->product->image_url) }}" alt="{{ $item->product_name }}" class="img-thumbnail mr-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                                <img src="{{ asset($item->product->image_url) }}" alt="{{ $item->product_name ?? $item->product->product_name }}" class="img-thumbnail mr-3" style="width: 50px; height: 50px; object-fit: cover;">
                                             @endif
                                             <div>
-                                                <div class="font-weight-bold">{{ $item->product_name }}</div>
+                                                <div class="font-weight-bold">{{ $item->product_name ?? $item->product->product_name }}</div>
                                                 @if($item->product)
                                                     <div class="small text-muted">SKU: {{ $item->product->sku ?? 'N/A' }}</div>
                                                 @endif

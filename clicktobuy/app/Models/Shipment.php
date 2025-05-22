@@ -23,6 +23,10 @@ class Shipment extends Model
         'status',
         'order_id',
     ];
+    
+    protected $casts = [
+        'shipment_date' => 'datetime',
+    ];
 
     public function order()
     {

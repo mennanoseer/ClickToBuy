@@ -18,6 +18,10 @@ class Payment extends Model
         'order_id',
         'payment_type',
     ];
+    
+    protected $casts = [
+        'payment_date' => 'datetime',
+    ];
 
     public function order()
     {

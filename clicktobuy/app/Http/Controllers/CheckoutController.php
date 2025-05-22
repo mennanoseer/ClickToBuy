@@ -68,7 +68,14 @@ class CheckoutController extends Controller
             $validationRules['routing_number'] = 'required|string|max:50';
         }
 
-        $request->validate($validationRules);
+        $validator = validator($request->all(), $validationRules);
+        
+        if ($validator->fails()) {
+            return redirect()
+                ->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
 
         // Get cart items
         $cart = auth()->user()->customer->cart;
@@ -163,9 +170,14 @@ class CheckoutController extends Controller
 
             DB::commit();
 
-            return redirect()->route('orders.confirmation', $order->order_id);
+            return redirect()->route('orders.confirmation', $order->order_id)
+                ->with('success', 'Your order has been placed successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('Checkout Error: ' . $e->getMessage(), [
+                'user_id' => auth()->id(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return redirect()->back()->with('error', 'An error occurred during checkout: ' . $e->getMessage());
         }
     }

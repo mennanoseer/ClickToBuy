@@ -30,7 +30,11 @@
                         <h5 class="font-weight-bold">Rating</h5>
                         <div class="h4 mb-0 text-warning">
                             @for($i = 1; $i <= 5; $i++)
-                                <i class="fas fa-star{{ $i <= $review->rating ? '' : '-o' }}"></i>
+                                @if($i <= $review->rating)
+                                    <i class="fas fa-star"></i>
+                                @else
+                                    <i class="far fa-star"></i>
+                                @endif
                             @endfor
                             <span class="text-gray-800 ml-2">{{ $review->rating }}/5</span>
                         </div>
@@ -65,8 +69,8 @@
                 </div>
                 <div class="card-body">
                     <div class="text-center mb-3">
-                        @if($review->product->image_url)
-                            <img src="{{ asset($review->product->image_url) }}" alt="{{ $review->product->name }}" class="img-fluid img-thumbnail" style="max-height: 150px;">
+                        @if($review->product && $review->product->image_url)
+                            <img src="{{ asset($review->product->image_url) }}" alt="{{ $review->product->name ?? 'Product Image' }}" class="img-fluid img-thumbnail" style="max-height: 150px;">
                         @else
                             <div class="bg-light p-4 rounded">
                                 <i class="fas fa-image fa-3x text-secondary"></i>
@@ -74,28 +78,34 @@
                         @endif
                     </div>
                     
-                    <h5 class="font-weight-bold">
-                        <a href="{{ route('admin.products.edit', $review->product_id) }}">
-                            {{ $review->product->name }}
+                    @if($review->product)
+                        <h5 class="font-weight-bold">
+                            <a href="{{ route('admin.products.edit', $review->product_id) }}">
+                                {{ $review->product->name }}
+                            </a>
+                        </h5>
+                        
+                        <p class="small text-muted mb-2">
+                            <strong>Price:</strong> ${{ number_format($review->product->price, 2) }}
+                        </p>
+                        
+                        <p class="small text-muted mb-2">
+                            <strong>Category:</strong> 
+                            @if($review->product->category)
+                                {{ $review->product->category->name }}
+                            @else
+                                Uncategorized
+                            @endif
+                        </p>
+                        
+                        <a href="{{ route('products.show', $review->product_id) }}" target="_blank" class="btn btn-sm btn-outline-primary btn-block">
+                            <i class="fas fa-external-link-alt mr-1"></i> View Product Page
                         </a>
-                    </h5>
-                    
-                    <p class="small text-muted mb-2">
-                        <strong>Price:</strong> ${{ number_format($review->product->price, 2) }}
-                    </p>
-                    
-                    <p class="small text-muted mb-2">
-                        <strong>Category:</strong> 
-                        @if($review->product->category)
-                            {{ $review->product->category->name }}
-                        @else
-                            Uncategorized
-                        @endif
-                    </p>
-                    
-                    <a href="{{ route('products.show', $review->product_id) }}" target="_blank" class="btn btn-sm btn-outline-primary btn-block">
-                        <i class="fas fa-external-link-alt mr-1"></i> View Product Page
-                    </a>
+                    @else
+                        <div class="alert alert-warning">
+                            Product information not available. The product may have been deleted.
+                        </div>
+                    @endif
                 </div>
             </div>
             

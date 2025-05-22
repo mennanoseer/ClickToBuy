@@ -104,20 +104,36 @@
                     @csrf
                     <input type="hidden" name="product_id" value="{{ $product->product_id }}">
                     <div class="input-group mb-3">
-                        <input type="number" name="quantity" class="form-control" value="1" min="1" max="{{ $product->stock }}">
-                        <button class="btn btn-primary" type="submit" {{ $product->stock <= 0 ? 'disabled' : '' }}>
+                        <span class="input-group-text decrement-btn">
+                            <i class="fas fa-minus"></i>
+                        </span>
+                        <input type="number" name="quantity" class="form-control quantity-input" value="1" min="1" max="{{ $product->stock }}" style="text-align: center;">
+                        <span class="input-group-text increment-btn">
+                            <i class="fas fa-plus"></i>
+                        </span>
+                        <button class="btn btn-primary add-to-cart" type="submit" {{ $product->stock <= 0 ? 'disabled' : '' }}>
                             <i class="fas fa-shopping-cart me-1"></i> Add to Cart
                         </button>
                     </div>
                 </form>
                 
-                <form action="{{ route('wishlist.add') }}" method="POST">
-                    @csrf
-                    <input type="hidden" name="product_id" value="{{ $product->product_id }}">
-                    <button type="submit" class="btn btn-outline-secondary">
-                        <i class="fas fa-heart me-1"></i> Add to Wishlist
-                    </button>
-                </form>
+                @if($product->isInWishlist())
+                    <form action="{{ route('wishlist.remove', $product->getWishlistItem()->wishlist_item_id) }}" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger add-to-wishlist">
+                            <i class="fas fa-heart-broken me-1"></i> Remove from Wishlist
+                        </button>
+                    </form>
+                @else
+                    <form action="{{ route('wishlist.add') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="product_id" value="{{ $product->product_id }}">
+                        <button type="submit" class="btn btn-outline-secondary add-to-wishlist">
+                            <i class="fas fa-heart me-1"></i> Add to Wishlist
+                        </button>
+                    </form>
+                @endif
             </div>
         </div>
     </div>
@@ -125,9 +141,23 @@
     <!-- Product Reviews -->
     <div class="row mb-5">
         <div class="col-md-12">
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+            
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+            
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3 class="mb-0">Reviews ({{ $product->reviews->count() }})</h3>
+                    <h3 class="mb-0">Reviews ({{ $reviews->count() }})</h3>
                     @auth
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal">
                             Write a Review
@@ -142,8 +172,8 @@
                             <div class="mb-4 pb-4 border-bottom">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <div>
-                                        <h5 class="mb-0">{{ $review->customer->user->user_name }}</h5>
-                                        <div class="text-muted small">{{ $review->review_date->format('F j, Y') }}</div>
+                                        <h5 class="mb-0">{{ $review->customer && $review->customer->user ? $review->customer->user->user_name : 'Anonymous User' }}</h5>
+                                        <div class="text-muted small">{{ $review->review_date instanceof \DateTime ? $review->review_date->format('F j, Y') : date('F j, Y', strtotime($review->review_date)) }}</div>
                                     </div>
                                     <div>
                                         @for($i = 1; $i <= 5; $i++)
@@ -203,18 +233,25 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="rating" class="form-label">Rating</label>
-                            <select class="form-select" id="rating" name="rating" required>
+                            <select class="form-select @error('rating') is-invalid @enderror" id="rating" name="rating" required>
                                 <option value="">Select a rating</option>
-                                <option value="5">5 - Excellent</option>
-                                <option value="4">4 - Very Good</option>
-                                <option value="3">3 - Good</option>
-                                <option value="2">2 - Fair</option>
-                                <option value="1">1 - Poor</option>
+                                <option value="5" {{ old('rating') == 5 ? 'selected' : '' }}>5 - Excellent</option>
+                                <option value="4" {{ old('rating') == 4 ? 'selected' : '' }}>4 - Very Good</option>
+                                <option value="3" {{ old('rating') == 3 ? 'selected' : '' }}>3 - Good</option>
+                                <option value="2" {{ old('rating') == 2 ? 'selected' : '' }}>2 - Fair</option>
+                                <option value="1" {{ old('rating') == 1 ? 'selected' : '' }}>1 - Poor</option>
                             </select>
+                            @error('rating')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="mb-3">
                             <label for="comment" class="form-label">Review</label>
-                            <textarea class="form-control" id="comment" name="comment" rows="4" required></textarea>
+                            <textarea class="form-control @error('comment') is-invalid @enderror" id="comment" name="comment" rows="4" required>{{ old('comment') }}</textarea>
+                            @error('comment')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text">Minimum 10 characters. Be honest and helpful in your review.</div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -226,4 +263,49 @@
         </div>
     </div>
 @endauth
+
+@push('scripts')
+<script>
+    // Initialize review form validation
+    document.addEventListener('DOMContentLoaded', function() {
+        const reviewForm = document.querySelector('#reviewModal form');
+        if (reviewForm) {
+            reviewForm.addEventListener('submit', function(event) {
+                const rating = document.getElementById('rating').value;
+                const comment = document.getElementById('comment').value;
+                let isValid = true;
+                
+                if (!rating) {
+                    isValid = false;
+                    document.getElementById('rating').classList.add('is-invalid');
+                } else {
+                    document.getElementById('rating').classList.remove('is-invalid');
+                }
+                
+                if (!comment || comment.length < 10) {
+                    isValid = false;
+                    document.getElementById('comment').classList.add('is-invalid');
+                } else {
+                    document.getElementById('comment').classList.remove('is-invalid');
+                }
+                
+                if (!isValid) {
+                    event.preventDefault();
+                } else {
+                    // Add loading state to prevent multiple submissions
+                    const submitButton = reviewForm.querySelector('button[type="submit"]');
+                    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+                    submitButton.disabled = true;
+                }
+            });
+        }
+        
+        // Show review modal with validation errors if any
+        @if($errors->any())
+            const reviewModal = new bootstrap.Modal(document.getElementById('reviewModal'));
+            reviewModal.show();
+        @endif
+    });
+</script>
+@endpush
 @endsection

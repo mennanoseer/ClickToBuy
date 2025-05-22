@@ -47,7 +47,7 @@
                                     </div>
                                 </div>
                                 <div class="card-footer bg-white">
-                                    <small class="text-muted">Added on {{ $item->added_date->format('M d, Y') }}</small>
+                                    <small class="text-muted">Added on {{ $item->added_date instanceof \DateTime ? $item->added_date->format('M d, Y') : date('M d, Y', strtotime($item->added_date)) }}</small>
                                 </div>
                             </div>
                         </div>
@@ -57,13 +57,27 @@
         </div>
     @else
         <div class="card">
-            <div class="card-body text-center py-5">
+            <div class="card-body empty-state">
                 <i class="fas fa-heart fa-4x text-muted mb-3"></i>
                 <h3>Your Wishlist is Empty</h3>
                 <p class="mb-4">Save items you like to your wishlist for future reference.</p>
-                <a href="{{ route('products.index') }}" class="btn btn-primary">
-                    <i class="fas fa-shopping-bag me-1"></i> Browse Products
-                </a>
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
+                        <a href="{{ route('products.index') }}" class="btn btn-primary w-100">
+                            <i class="fas fa-shopping-bag me-2"></i> Browse Products
+                        </a>
+                    </div>
+                </div>
+                @auth
+                    @if(isset(Auth::user()->customer->cart) && Auth::user()->customer->cart->cartItems->count() > 0)
+                        <div class="mt-4 pt-4 border-top">
+                            <p>You have {{ Auth::user()->customer->cart->cartItems->count() }} items in your cart</p>
+                            <a href="{{ route('cart.index') }}" class="btn btn-outline-success">
+                                <i class="fas fa-shopping-cart me-2"></i> View Your Cart
+                            </a>
+                        </div>
+                    @endif
+                @endauth
             </div>
         </div>
     @endif

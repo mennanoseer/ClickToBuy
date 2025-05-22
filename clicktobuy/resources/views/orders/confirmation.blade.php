@@ -74,19 +74,24 @@
                         <div class="col-md-6">
                             <h5>Payment Information</h5>
                             <p>
-                                <strong>Payment Method:</strong> 
-                                @if($order->payment->creditCardPayment)
+                                <strong>Payment Method:</strong>                            @if(isset($order->payment) && $order->payment)
+                                @if($order->payment->payment_type == 'credit_card' && isset($order->payment->creditCardPayment))
                                     Credit Card (xxxx-xxxx-xxxx-{{ substr($order->payment->creditCardPayment->card_number, -4) }})
-                                @elseif($order->payment->paypalPayment)
+                                @elseif($order->payment->payment_type == 'paypal' && isset($order->payment->paypalPayment))
                                     PayPal ({{ $order->payment->paypalPayment->paypal_email }})
-                                @elseif($order->payment->bankTransferPayment)
+                                @elseif($order->payment->payment_type == 'bank_transfer' && isset($order->payment->bankTransferPayment))
                                     Bank Transfer
+                                    @else
+                                        {{ ucfirst($order->payment->payment_type ?? 'Unknown') }}
+                                    @endif
+                                    <br>
+                                    <strong>Payment Status:</strong> 
+                                    <span class="badge bg-{{ $order->payment->status === 'completed' ? 'success' : 'warning' }}">
+                                        {{ ucfirst($order->payment->status) }}
+                                    </span>
+                                @else
+                                    Information not available
                                 @endif
-                                <br>
-                                <strong>Payment Status:</strong> 
-                                <span class="badge bg-{{ $order->payment->status === 'completed' ? 'success' : 'warning' }}">
-                                    {{ ucfirst($order->payment->status) }}
-                                </span>
                             </p>
                         </div>
                     </div>
@@ -94,13 +99,17 @@
                     <div class="mt-4">
                         <h5>Shipping Details</h5>
                         <p>
-                            <strong>Status:</strong> 
-                            <span class="badge bg-{{ $order->shipment->status === 'processing' ? 'warning' : 'info' }}">
-                                {{ ucfirst($order->shipment->status) }}
-                            </span><br>
-                            <strong>Carrier:</strong> {{ $order->shipment->carrier ?? 'To be determined' }}<br>
-                            @if($order->shipment->tracking_number)
-                                <strong>Tracking Number:</strong> {{ $order->shipment->tracking_number }}
+                            @if(isset($order->shipment) && $order->shipment)
+                                <strong>Status:</strong> 
+                                <span class="badge bg-{{ $order->shipment->status === 'processing' ? 'warning' : 'info' }}">
+                                    {{ ucfirst($order->shipment->status) }}
+                                </span><br>
+                                <strong>Carrier:</strong> {{ $order->shipment->carrier ?? 'To be determined' }}<br>
+                                @if(isset($order->shipment->tracking_number) && $order->shipment->tracking_number)
+                                    <strong>Tracking Number:</strong> {{ $order->shipment->tracking_number }}
+                                @endif
+                            @else
+                                Shipping information not available yet
                             @endif
                         </p>
                     </div>

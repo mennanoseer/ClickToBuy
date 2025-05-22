@@ -9,6 +9,7 @@ class CreditCardPayment extends Model
 {
     use HasFactory;
 
+    protected $table = 'credit_card_payments';
     protected $primaryKey = 'payment_id';
     public $incrementing = false;
 

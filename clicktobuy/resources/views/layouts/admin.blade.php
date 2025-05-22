@@ -15,183 +15,227 @@
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js', 'resources/css/admin.css'])
     
+    <!-- Additional CSS -->
+    <link href="{{ asset('css/admin-notifications.css') }}" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom styles for horizontal layout -->
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f8f9fc;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        .content-wrapper {
+            padding: 25px;
+        }
+        .nav-section {
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .notification-item.unread {
+            background-color: rgba(13, 110, 253, 0.1);
+            font-weight: bold;
+        }
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            color: white;
+        }
+        .notifications-container {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .badge-counter {
+            position: absolute;
+            transform: scale(0.7);
+            transform-origin: top right;
+            top: 0.25rem;
+            right: 0.25rem;
+        }
+    </style>
+    
+    @yield('styles')
 </head>
 <body>
-    <div class="admin-container">
-        <!-- Sidebar -->
-        <div class="admin-sidebar" id="adminSidebar">
-            <div class="sidebar-brand">
-                <a href="{{ route('admin.dashboard') }}" class="d-flex align-items-center text-decoration-none">
-                    <i class="fas fa-store"></i>
-                    <h2>CLICKTOBUY ADMIN</h2>
-                </a>
-            </div>
+    <!-- Horizontal Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ route('admin.dashboard') }}">
+                <i class="fas fa-store me-2"></i>
+                CLICKTOBUY ADMIN
+            </a>
             
-            <ul class="sidebar-nav">
-                <li class="nav-item">
-                    <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                        <i class="fas fa-tachometer-alt"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li>
-                
-                <div class="nav-section">
-                    <h5 class="nav-section-title">CATALOG</h5>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="adminNavbar">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                            <i class="fas fa-tachometer-alt me-1"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    
                     <li class="nav-item">
                         <a href="{{ route('admin.products.index') }}" class="nav-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
-                            <i class="fas fa-box"></i>
-                            <span>Products</span>
+                            <i class="fas fa-box me-1"></i>
+                            Products
                         </a>
                     </li>
+                    
                     <li class="nav-item">
                         <a href="{{ route('admin.categories.index') }}" class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
-                            <i class="fas fa-folder"></i>
-                            <span>Categories</span>
+                            <i class="fas fa-folder me-1"></i>
+                            Categories
                         </a>
                     </li>
-                </div>
-                
-                <div class="nav-section">
-                    <h5 class="nav-section-title">SALES</h5>
+                    
                     <li class="nav-item">
                         <a href="{{ route('admin.orders.index') }}" class="nav-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
-                            <i class="fas fa-shopping-cart"></i>
-                            <span>Orders</span>
+                            <i class="fas fa-shopping-cart me-1"></i>
+                            Orders
                         </a>
                     </li>
+                    
                     <li class="nav-item">
                         <a href="{{ route('admin.customers.index') }}" class="nav-link {{ request()->routeIs('admin.customers.*') ? 'active' : '' }}">
-                            <i class="fas fa-users"></i>
-                            <span>Customers</span>
+                            <i class="fas fa-users me-1"></i>
+                            Customers
                         </a>
                     </li>
-                </div>
-                
-                <div class="nav-section">
-                    <h5 class="nav-section-title">CONTENT</h5>
+                    
                     <li class="nav-item">
                         <a href="{{ route('admin.reviews.index') }}" class="nav-link {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}">
-                            <i class="fas fa-star"></i>
-                            <span>Reviews</span>
+                            <i class="fas fa-star me-1"></i>
+                            Reviews
                         </a>
                     </li>
-                </div>
-            </ul>
-            
-            <button class="sidebar-toggle" id="sidebarToggle">
-                <i class="fas fa-angle-left"></i>
-            </button>
-        </div>
-
-        <!-- Content Area -->
-        <div class="admin-content" id="adminContent">
-            <!-- Top Bar -->
-            <div class="admin-topbar">
-                <button class="mobile-toggle" id="mobileToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
+                </ul>
                 
-                <div class="user-dropdown">
-                    <a href="#" id="userDropdownToggle">
-                        <span>{{ Auth::user()->user_name }}</span>
-                        <i class="fas fa-user"></i>
-                    </a>
-                    <div class="dropdown-menu" id="userDropdownMenu">
-                        <a href="{{ route('home') }}" class="dropdown-item">
-                            <i class="fas fa-store fa-sm fa-fw mr-2"></i>
-                            View Store
+                <!-- Right side of navbar -->
+                <ul class="navbar-nav ms-auto">
+                    <!-- Notifications Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link position-relative" href="#" id="notificationDropdownToggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-bell"></i>
+                            @if(Auth::user()->unreadNotifications->count() > 0)
+                                <span class="badge bg-danger rounded-pill badge-counter">{{ Auth::user()->unreadNotifications->count() }}</span>
+                            @endif
                         </a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{{ route('logout') }}"
-                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                            <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2"></i>
-                            Logout
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdownToggle" style="width: 300px;">
+                            <li>
+                                <div class="d-flex justify-content-between align-items-center px-3 py-2">
+                                    <h6 class="dropdown-header p-0 m-0">Notifications</h6>
+                                    <a href="#" class="mark-all-read text-decoration-none small">Mark All as Read</a>
+                                </div>
+                            </li>
+                            <li><hr class="dropdown-divider my-0"></li>
+                            <div class="notifications-container">
+                                @forelse(Auth::user()->notifications->take(5) as $notification)
+                                    <li>
+                                        <a href="{{ $notification->data['link'] ?? '#' }}" class="dropdown-item notification-item {{ $notification->read_at ? '' : 'unread' }}" data-id="{{ $notification->id }}">
+                                            <div class="d-flex align-items-center">
+                                                <div class="notification-icon {{ $notification->data['icon_class'] ?? 'bg-primary' }} me-3">
+                                                    <i class="fas {{ $notification->data['icon'] ?? 'fa-bell' }}"></i>
+                                                </div>
+                                                <div class="notification-content flex-grow-1">
+                                                    <div class="d-flex w-100 justify-content-between">
+                                                        <h6 class="mb-1">{{ $notification->data['title'] }}</h6>
+                                                        <small>{{ $notification->created_at->diffForHumans() }}</small>
+                                                    </div>
+                                                    <p class="mb-1 small">{{ Str::limit($notification->data['message'], 100) }}</p>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                @empty
+                                    <li><span class="dropdown-item text-center py-3">No notifications</span></li>
+                                @endforelse
+                            </div>
+                            <li><hr class="dropdown-divider my-0"></li>
+                            <li><a href="{{ route('admin.notifications.index') }}" class="dropdown-item text-center">View All Notifications</a></li>
+                        </ul>
+                    </li>
+                    
+                    <!-- User Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdownToggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-1"></i>
+                            {{ Auth::user()->user_name }}
                         </a>
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                            @csrf
-                        </form>
-                    </div>
-                </div>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a href="{{ route('home') }}" class="dropdown-item">
+                                    <i class="fas fa-store fa-sm fa-fw me-2"></i>
+                                    View Store
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{{ route('logout') }}"
+                                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw me-2"></i>
+                                    Logout
+                                </a>
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                    @csrf
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
             </div>
-
-            <!-- Main Content -->
-            <div class="main-content">
-                @if (session('success'))
-                    <div class="alert alert-success alert-dismissible">
-                        {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                @endif
-
-                @if (session('error'))
-                    <div class="alert alert-danger alert-dismissible">
-                        {{ session('error') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                @endif
-
-                @yield('content')
-            </div>
-
-            <!-- Footer -->
-            <footer class="admin-footer">
-                <p>Copyright &copy; ClickToBuy {{ date('Y') }}</p>
-            </footer>
         </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="content-wrapper">
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        @yield('content')
+
+        <!-- Footer -->
+        <footer class="mt-5 pt-4 border-top text-center">
+            <p>Copyright &copy; ClickToBuy {{ date('Y') }}</p>
+        </footer>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Sidebar toggle
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            const sidebar = document.getElementById('adminSidebar');
-            const content = document.getElementById('adminContent');
-            
-            sidebarToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('collapsed');
-                content.classList.toggle('expanded');
-            });
-            
-            // Mobile toggle
-            const mobileToggle = document.getElementById('mobileToggle');
-            
-            mobileToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('mobile-show');
-            });
-            
-            // User dropdown
-            const userDropdownToggle = document.getElementById('userDropdownToggle');
-            const userDropdownMenu = document.getElementById('userDropdownMenu');
-            
-            userDropdownToggle.addEventListener('click', function(e) {
-                e.preventDefault();
-                userDropdownMenu.classList.toggle('show');
-            });
-            
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!userDropdownToggle.contains(e.target) && !userDropdownMenu.contains(e.target)) {
-                    userDropdownMenu.classList.remove('show');
-                }
-            });
-            
-            // Handle window resize
-            window.addEventListener('resize', function() {
-                if (window.innerWidth > 768) {
-                    sidebar.classList.remove('mobile-show');
-                }
-            });
-            
-            // Default state for desktop and mobile
-            if (window.innerWidth <= 768) {
-                sidebar.classList.add('collapsed');
-                content.classList.add('expanded');
-            }
-        });
-    </script>
+    <!-- Dashboard Charts JS -->
+    @if(request()->routeIs('admin.dashboard'))
+    <script src="{{ asset('js/admin-dashboard-charts.js') }}"></script>
+    @endif
+    
+    <!-- Admin Notifications JS -->
+    <script src="{{ asset('js/admin-notifications.js') }}"></script>
+    
+    @yield('scripts')
 </body>
 </html> 

@@ -17,7 +17,21 @@ class Review extends Model
         'rating',
         'comment',
         'review_date',
+        'requires_moderation',
     ];
+    
+    protected $casts = [
+        'review_date' => 'datetime',
+        'rating' => 'integer',
+        'requires_moderation' => 'boolean',
+    ];
+    
+    /**
+     * The relationships that should always be loaded.
+     *
+     * @var array
+     */
+    protected $with = ['customer'];
 
     public function customer()
     {

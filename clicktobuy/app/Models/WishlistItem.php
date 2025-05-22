@@ -16,6 +16,10 @@ class WishlistItem extends Model
         'product_id',
         'added_date',
     ];
+    
+    protected $casts = [
+        'added_date' => 'datetime',
+    ];
 
     public function wishlist()
     {

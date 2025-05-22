@@ -115,16 +115,35 @@
                                     <h5 class="card-title">{{ $product->name }}</h5>
                                     <p class="card-text text-truncate">{{ $product->description }}</p>
                                     <p class="card-text font-weight-bold">${{ number_format($product->price, 2) }}</p>
-                                    <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
                                         <a href="{{ route('products.show', $product->product_id) }}" class="btn btn-sm btn-primary">View Details</a>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
                                         <form action="{{ route('cart.add') }}" method="POST">
                                             @csrf
                                             <input type="hidden" name="product_id" value="{{ $product->product_id }}">
                                             <input type="hidden" name="quantity" value="1">
-                                            <button type="submit" class="btn btn-sm btn-success" {{ $product->stock <= 0 ? 'disabled' : '' }}>
-                                                Add to Cart
+                                            <button type="submit" class="btn btn-sm btn-success add-to-cart" {{ $product->stock <= 0 ? 'disabled' : '' }}>
+                                                <i class="fas fa-shopping-cart me-1"></i> Add to Cart
                                             </button>
                                         </form>
+                                        @if($product->isInWishlist())
+                                            <form action="{{ route('wishlist.remove', $product->getWishlistItem()->wishlist_item_id) }}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-danger add-to-wishlist">
+                                                    <i class="fas fa-heart"></i>
+                                                </button>
+                                            </form>
+                                        @else
+                                            <form action="{{ route('wishlist.add') }}" method="POST">
+                                                @csrf
+                                                <input type="hidden" name="product_id" value="{{ $product->product_id }}">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger add-to-wishlist">
+                                                    <i class="fas fa-heart"></i>
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
                                 </div>
                             </div>

@@ -69,17 +69,17 @@
                             <td>{{ $order->order_date->format('M d, Y H:i') }}</td>
                             <td>${{ number_format($order->total_price, 2) }}</td>
                             <td>
-                                <span class="badge badge-{{ 
+                                <span class="badge bg-{{ 
                                     $order->status == 'pending' ? 'warning' : 
                                     ($order->status == 'processing' ? 'info' : 
                                     ($order->status == 'shipped' ? 'primary' : 
                                     ($order->status == 'delivered' ? 'success' : 
-                                    'danger'))) }}">
+                                    'danger'))) }} status-badge" data-order-id="{{ $order->order_id }}">
                                     {{ ucfirst($order->status) }}
                                 </span>
                             </td>
                             <td>
-                                <span class="badge badge-{{ $order->payment_status == 'paid' ? 'success' : 'secondary' }}">
+                                <span class="badge bg-{{ $order->payment_status == 'paid' ? 'success' : 'secondary' }}">
                                     {{ ucfirst($order->payment_status) }}
                                 </span>
                             </td>
@@ -94,7 +94,7 @@
                                     <div class="dropdown-menu">
                                         @foreach(['pending', 'processing', 'shipped', 'delivered', 'cancelled'] as $status)
                                             @if($status != $order->status)
-                                            <form action="{{ route('admin.orders.updateStatus', $order->order_id) }}" method="POST">
+                                            <form action="{{ route('admin.orders.updateStatus', $order->order_id) }}" class="status-update-form" method="POST" data-order-id="{{ $order->order_id }}">
                                                 @csrf
                                                 @method('PATCH')
                                                 <input type="hidden" name="status" value="{{ $status }}">
@@ -129,6 +129,80 @@
             "info": false,
             "ordering": true,
             "order": [[2, 'desc']] // Sort by date column (index 2) in descending order
+        });
+        
+        // Handle form submission with AJAX
+        $('.status-update-form').on('submit', function(e) {
+            e.preventDefault();
+            const form = $(this);
+            const orderId = form.data('order-id');
+            const statusValue = form.find('input[name="status"]').val();
+            const csrfToken = form.find('input[name="_token"]').val();
+            
+            $.ajax({
+                url: form.attr('action'),
+                type: 'POST',
+                data: {
+                    _token: csrfToken,
+                    _method: 'PATCH',
+                    status: statusValue
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        // Update the badge
+                        const statusBadge = $(`span.status-badge[data-order-id="${orderId}"]`);
+                        statusBadge.removeClass('bg-warning bg-info bg-primary bg-success bg-danger');
+                        
+                        // Add the appropriate class based on the new status
+                        switch(statusValue) {
+                            case 'pending':
+                                statusBadge.addClass('bg-warning');
+                                break;
+                            case 'processing':
+                                statusBadge.addClass('bg-info');
+                                break;
+                            case 'shipped':
+                                statusBadge.addClass('bg-primary');
+                                break;
+                            case 'delivered':
+                                statusBadge.addClass('bg-success');
+                                break;
+                            case 'cancelled':
+                                statusBadge.addClass('bg-danger');
+                                break;
+                        }
+                        
+                        // Update the text
+                        statusBadge.text(statusValue.charAt(0).toUpperCase() + statusValue.slice(1));
+                        
+                        // Show success message
+                        alert('Order status updated to ' + statusValue);
+                        
+                        // If we're on the dashboard page, refresh the recent orders
+                        if (window.refreshRecentOrders) {
+                            window.refreshRecentOrders();
+                        }
+                        
+                        // If there's an instance of the dashboard with recent orders, refresh it
+                        if ($('#recent-orders-container').length) {
+                            $.ajax({
+                                url: '/admin/api/recent-orders',
+                                type: 'GET',
+                                dataType: 'json',
+                                success: function(response) {
+                                    if (response.success) {
+                                        $('#recent-orders-container').html(response.html);
+                                    }
+                                }
+                            });
+                        }
+                    }
+                },
+                error: function() {
+                    alert('Error updating order status. Please try again.');
+                }
+            });
         });
     });
 </script>

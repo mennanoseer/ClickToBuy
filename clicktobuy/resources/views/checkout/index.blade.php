@@ -19,16 +19,16 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label for="address" class="form-label">Address</label>
-                                    <input type="text" class="form-control @error('address') is-invalid @enderror" id="address" name="address" value="{{ old('address', auth()->user()->address) }}" required>
-                                    @error('address')
+                                    <label for="shipping_address" class="form-label">Address</label>
+                                    <input type="text" class="form-control @error('shipping_address') is-invalid @enderror" id="shipping_address" name="shipping_address" value="{{ old('shipping_address', auth()->user()->address) }}" required>
+                                    @error('shipping_address')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="city" class="form-label">City</label>
-                                    <input type="text" class="form-control @error('city') is-invalid @enderror" id="city" name="city" value="{{ old('city') }}" required>
-                                    @error('city')
+                                    <label for="shipping_city" class="form-label">City</label>
+                                    <input type="text" class="form-control @error('shipping_city') is-invalid @enderror" id="shipping_city" name="shipping_city" value="{{ old('shipping_city') }}" required>
+                                    @error('shipping_city')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -36,23 +36,23 @@
                             
                             <div class="row">
                                 <div class="col-md-4 mb-3">
-                                    <label for="state" class="form-label">State</label>
-                                    <input type="text" class="form-control @error('state') is-invalid @enderror" id="state" name="state" value="{{ old('state') }}" required>
-                                    @error('state')
+                                    <label for="shipping_state" class="form-label">State</label>
+                                    <input type="text" class="form-control @error('shipping_state') is-invalid @enderror" id="shipping_state" name="shipping_state" value="{{ old('shipping_state') }}" required>
+                                    @error('shipping_state')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label for="country" class="form-label">Country</label>
-                                    <input type="text" class="form-control @error('country') is-invalid @enderror" id="country" name="country" value="{{ old('country', 'United States') }}" required>
-                                    @error('country')
+                                    <label for="shipping_country" class="form-label">Country</label>
+                                    <input type="text" class="form-control @error('shipping_country') is-invalid @enderror" id="shipping_country" name="shipping_country" value="{{ old('shipping_country', 'United States') }}" required>
+                                    @error('shipping_country')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label for="zip_code" class="form-label">ZIP Code</label>
-                                    <input type="text" class="form-control @error('zip_code') is-invalid @enderror" id="zip_code" name="zip_code" value="{{ old('zip_code') }}" required>
-                                    @error('zip_code')
+                                    <label for="shipping_zip_code" class="form-label">ZIP Code</label>
+                                    <input type="text" class="form-control @error('shipping_zip_code') is-invalid @enderror" id="shipping_zip_code" name="shipping_zip_code" value="{{ old('shipping_zip_code') }}" required>
+                                    @error('shipping_zip_code')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -129,7 +129,17 @@
                                 <div id="paypal_details" class="payment-details mt-3" style="display: none;">
                                     <div class="mb-3">
                                         <label for="paypal_email" class="form-label">PayPal Email</label>
-                                        <input type="email" class="form-control" id="paypal_email" name="paypal_email" value="{{ old('paypal_email') }}">
+                                        <input type="email" class="form-control @error('paypal_email') is-invalid @enderror" id="paypal_email" name="paypal_email" value="{{ old('paypal_email') }}">
+                                        @error('paypal_email')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="transaction_id" class="form-label">Transaction ID</label>
+                                        <input type="text" class="form-control @error('transaction_id') is-invalid @enderror" id="transaction_id" name="transaction_id" value="{{ old('transaction_id') }}">
+                                        @error('transaction_id')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
                             </div>
@@ -241,17 +251,73 @@
 
 @push('scripts')
 <script>
-    // Toggle payment method details
-    document.querySelectorAll('input[name="payment_method"]').forEach(function(radio) {
-        radio.addEventListener('change', function() {
-            document.querySelectorAll('.payment-details').forEach(function(details) {
-                details.style.display = 'none';
-            });
-            
-            if (this.checked) {
-                document.getElementById(this.value + '_details').style.display = 'block';
-            }
+    // Initialize payment details on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Hide all payment details first
+        document.querySelectorAll('.payment-details').forEach(function(details) {
+            details.style.display = 'none';
         });
+        
+        // Show the selected payment method's details
+        const selectedPaymentMethod = document.querySelector('input[name="payment_method"]:checked');
+        if (selectedPaymentMethod) {
+            document.getElementById(selectedPaymentMethod.value + '_details').style.display = 'block';
+        }
+        
+        // Toggle payment method details
+        document.querySelectorAll('input[name="payment_method"]').forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                document.querySelectorAll('.payment-details').forEach(function(details) {
+                    details.style.display = 'none';
+                });
+                
+                if (this.checked) {
+                    document.getElementById(this.value + '_details').style.display = 'block';
+                }
+            });
+        });
+    });
+    
+    // Form validation
+    document.querySelector('form').addEventListener('submit', function(event) {
+        const selectedPaymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+        
+        // Validate payment specific fields
+        let isValid = true;
+        let errorMessage = '';
+        
+        if (selectedPaymentMethod === 'credit_card') {
+            const cardNumber = document.getElementById('card_number').value;
+            const cardHolder = document.getElementById('card_holder').value;
+            const expiryDate = document.getElementById('expiry_date').value;
+            const cvv = document.getElementById('cvv').value;
+            
+            if (!cardNumber || !cardHolder || !expiryDate || !cvv) {
+                isValid = false;
+                errorMessage = 'Please fill in all credit card details';
+            }
+        } else if (selectedPaymentMethod === 'paypal') {
+            const paypalEmail = document.getElementById('paypal_email').value;
+            
+            if (!paypalEmail) {
+                isValid = false;
+                errorMessage = 'Please enter your PayPal email';
+            }
+        } else if (selectedPaymentMethod === 'bank_transfer') {
+            const bankName = document.getElementById('bank_name').value;
+            const accountNumber = document.getElementById('account_number').value;
+            const routingNumber = document.getElementById('routing_number').value;
+            
+            if (!bankName || !accountNumber || !routingNumber) {
+                isValid = false;
+                errorMessage = 'Please fill in all bank details';
+            }
+        }
+        
+        if (!isValid) {
+            event.preventDefault();
+            alert(errorMessage);
+        }
     });
 </script>
 @endpush

@@ -1,0 +1,76 @@
+/* Admin Notification Styles */
+.top-nav-items {
+    display: flex;
+    align-items: center;
+}
+
+.notification-dropdown {
+    position: relative;
+    margin-right: 20px;
+}
+
+.notification-dropdown > a {
+    color: #5a5c69;
+    font-size: 1.2rem;
+    position: relative;
+}
+
+.notification-dropdown .badge-counter {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    font-size: 0.6rem;
+    padding: 0.2rem 0.4rem;
+    border-radius: 50%;
+}
+
+.notification-dropdown .dropdown-menu {
+    width: 300px;
+    padding: 0;
+    border: none;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    border-radius: 0.35rem;
+}
+
+.notification-dropdown .dropdown-header {
+    background-color: #4e73df;
+    color: white;
+    padding: 0.75rem 1rem;
+    font-weight: bold;
+}
+
+.notifications-container {
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e3e6f0;
+    white-space: normal;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item.unread {
+    background-color: rgba(78, 115, 223, 0.05);
+    border-left: 4px solid #4e73df;
+}
+
+.notification-item .notification-content h6 {
+    font-size: 0.8rem;
+    color: #4e73df;
+    font-weight: bold;
+}
+
+.notification-item .notification-content p {
+    font-size: 0.78rem;
+    color: #858796;
+}
+
+.notification-item .notification-content small {
+    font-size: 0.7rem;
+    color: #858796;
+}

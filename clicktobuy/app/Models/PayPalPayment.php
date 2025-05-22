@@ -9,6 +9,7 @@ class PayPalPayment extends Model
 {
     use HasFactory;
 
+    protected $table = 'paypal_payments';
     protected $primaryKey = 'payment_id';
     public $incrementing = false;
 

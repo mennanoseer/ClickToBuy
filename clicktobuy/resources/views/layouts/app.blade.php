@@ -7,22 +7,26 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'ClickToBuy') }}</title>
+    <title>{{ config('app.name', 'Click To Buy') }}</title>
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link href="{{ asset('css/shopping.css') }}" rel="stylesheet">
 
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    <script src="{{ asset('js/shopping.js') }}" defer></script>
 </head>
 <body>
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
-                    {{ config('app.name', 'ClickToBuy') }}
+                    {{ config('app.name', 'Click To Buy') }}
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
                     <span class="navbar-toggler-icon"></span>
@@ -58,6 +62,11 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('wishlist.index') }}">
                                 <i class="fas fa-heart"></i> Wishlist
+                                @auth
+                                    @if(Auth::user()->customer && Auth::user()->customer->wishlist && Auth::user()->customer->wishlist->wishlistItems->count() > 0)
+                                        <span class="badge bg-danger">{{ Auth::user()->customer->wishlist->wishlistItems->count() }}</span>
+                                    @endif
+                                @endauth
                             </a>
                         </li>
 

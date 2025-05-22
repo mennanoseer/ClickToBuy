@@ -9,6 +9,7 @@ class BankTransferPayment extends Model
 {
     use HasFactory;
 
+    protected $table = 'bank_transfer_payments';
     protected $primaryKey = 'payment_id';
     public $incrementing = false;
 
