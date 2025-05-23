@@ -17,6 +17,8 @@
     
     <!-- Additional CSS -->
     <link href="{{ asset('css/admin-notifications.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/admin-fixes.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/table-visibility-fix.css') }}" rel="stylesheet">
     
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -79,6 +81,10 @@
                 CLICKTOBUY ADMIN
             </a>
             
+            <a href="{{ route('home') }}" class="home-link d-none d-sm-flex">
+                <i class="fas fa-home"></i> Store Home
+            </a>
+            
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -131,25 +137,25 @@
                 <!-- Right side of navbar -->
                 <ul class="navbar-nav ms-auto">
                     <!-- Notifications Dropdown -->
-                    <li class="nav-item dropdown">
+                    <li class="nav-item dropdown notification-dropdown">
                         <a class="nav-link position-relative" href="#" id="notificationDropdownToggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-bell"></i>
                             @if(Auth::user()->unreadNotifications->count() > 0)
                                 <span class="badge bg-danger rounded-pill badge-counter">{{ Auth::user()->unreadNotifications->count() }}</span>
                             @endif
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdownToggle" style="width: 300px;">
+                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="notificationDropdownToggle" style="width: 350px;">
                             <li>
                                 <div class="d-flex justify-content-between align-items-center px-3 py-2">
                                     <h6 class="dropdown-header p-0 m-0">Notifications</h6>
-                                    <a href="#" class="mark-all-read text-decoration-none small">Mark All as Read</a>
+                                    <a href="{{ route('admin.notifications.markAllAsRead') }}" class="mark-all-read text-decoration-none small">Mark All as Read</a>
                                 </div>
                             </li>
                             <li><hr class="dropdown-divider my-0"></li>
                             <div class="notifications-container">
                                 @forelse(Auth::user()->notifications->take(5) as $notification)
                                     <li>
-                                        <a href="{{ $notification->data['link'] ?? '#' }}" class="dropdown-item notification-item {{ $notification->read_at ? '' : 'unread' }}" data-id="{{ $notification->id }}">
+                                        <a href="{{ route('admin.notifications.show', $notification->id) }}" class="dropdown-item notification-item {{ $notification->read_at ? '' : 'unread' }}" data-id="{{ $notification->id }}">
                                             <div class="d-flex align-items-center">
                                                 <div class="notification-icon {{ $notification->data['icon_class'] ?? 'bg-primary' }} me-3">
                                                     <i class="fas {{ $notification->data['icon'] ?? 'fa-bell' }}"></i>
@@ -174,12 +180,12 @@
                     </li>
                     
                     <!-- User Dropdown -->
-                    <li class="nav-item dropdown">
+                    <li class="nav-item dropdown user-dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdownToggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-user-circle me-1"></i>
                             {{ Auth::user()->user_name }}
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
+                        <ul class="dropdown-menu dropdown-menu-end shadow">
                             <li>
                                 <a href="{{ route('home') }}" class="dropdown-item">
                                     <i class="fas fa-store fa-sm fa-fw me-2"></i>
@@ -235,6 +241,36 @@
     
     <!-- Admin Notifications JS -->
     <script src="{{ asset('js/admin-notifications.js') }}"></script>
+    
+    <script>
+        // Initialize all dropdowns and handle notification clicks
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fix for dropdowns
+            const dropdowns = document.querySelectorAll('.dropdown-toggle');
+            dropdowns.forEach(dropdown => {
+                dropdown.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const dropdownMenu = this.nextElementSibling;
+                    if(dropdownMenu) {
+                        dropdownMenu.classList.toggle('show');
+                    }
+                });
+            });
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                const dropdownMenus = document.querySelectorAll('.dropdown-menu');
+                dropdownMenus.forEach(menu => {
+                    if (!menu.contains(e.target)) {
+                        menu.classList.remove('show');
+                    }
+                });
+            });
+        });
+    </script>
+    
+    <!-- Visibility diagnostic script -->
+    <script src="{{ asset('js/text-visibility-check.js') }}"></script>
     
     @yield('scripts')
 </body>

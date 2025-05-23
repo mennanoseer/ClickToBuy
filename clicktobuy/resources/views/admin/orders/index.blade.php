@@ -17,10 +17,10 @@
                 </button>
                 <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
                     aria-labelledby="filtersDropdown">
-                    <form action="{{ route('admin.orders.index') }}" method="GET" class="px-3 py-2" style="width: 300px;">
-                        <div class="form-group">
-                            <label for="status">Status</label>
-                            <select class="form-control" name="status" id="status">
+                    <form class="px-3 py-2" style="width: 300px;" id="ordersFilterForm">
+                        <div class="form-group mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" name="status" id="status">
                                 <option value="">All Statuses</option>
                                 <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
                                 <option value="processing" {{ request('status') == 'processing' ? 'selected' : '' }}>Processing</option>
@@ -29,16 +29,16 @@
                                 <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label for="date_from">Date From</label>
+                        <div class="form-group mb-3">
+                            <label for="date_from" class="form-label">Date From</label>
                             <input type="date" class="form-control" name="date_from" id="date_from" value="{{ request('date_from') }}">
                         </div>
-                        <div class="form-group">
-                            <label for="date_to">Date To</label>
+                        <div class="form-group mb-3">
+                            <label for="date_to" class="form-label">Date To</label>
                             <input type="date" class="form-control" name="date_to" id="date_to" value="{{ request('date_to') }}">
                         </div>
-                        <button type="submit" class="btn btn-primary btn-block">Apply Filters</button>
-                        <a href="{{ route('admin.orders.index') }}" class="btn btn-secondary btn-block">Clear Filters</a>
+                        <button type="button" id="applyFilters" class="btn btn-primary w-100 mb-2">Apply Filters</button>
+                        <button type="button" id="clearFilters" class="btn btn-secondary w-100">Clear Filters</button>
                     </form>
                 </div>
             </div>
@@ -131,8 +131,58 @@
             "order": [[2, 'desc']] // Sort by date column (index 2) in descending order
         });
         
-        // Handle form submission with AJAX
-        $('.status-update-form').on('submit', function(e) {
+        // AJAX Filtering
+        $('#applyFilters').on('click', function() {
+            loadOrdersWithFilters();
+        });
+        
+        $('#clearFilters').on('click', function() {
+            $('#status').val('');
+            $('#date_from').val('');
+            $('#date_to').val('');
+            loadOrdersWithFilters();
+        });
+        
+        function loadOrdersWithFilters() {
+            const status = $('#status').val();
+            const dateFrom = $('#date_from').val() || '';
+            const dateTo = $('#date_to').val() || '';
+            
+            // Show loading indicator
+            $('.card-body').append('<div class="text-center py-4" id="loadingSpinner"><i class="fas fa-spinner fa-spin fa-2x"></i></div>');
+            
+            $.ajax({
+                url: "{{ route('admin.orders.index') }}",
+                type: 'GET',
+                data: {
+                    status: status,
+                    date_from: dateFrom,
+                    date_to: dateTo,
+                    ajax: 1
+                },
+                success: function(response) {
+                    // Remove loading indicator
+                    $('#loadingSpinner').remove();
+                    
+                    // Replace table content with new data
+                    $('.table-responsive').html(response);
+                    
+                    // Reinitialize status update forms
+                    initStatusUpdateForms();
+                },
+                error: function(xhr) {
+                    // Remove loading indicator
+                    $('#loadingSpinner').remove();
+                    
+                    alert('Error loading orders. Please try again.');
+                }
+            });
+        }
+        
+        // Initialize status update forms function
+        function initStatusUpdateForms() {
+            // Handle form submission with AJAX
+            $('.status-update-form').on('submit', function(e) {
             e.preventDefault();
             const form = $(this);
             const orderId = form.data('order-id');
@@ -142,8 +192,10 @@
             $.ajax({
                 url: form.attr('action'),
                 type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken
+                },
                 data: {
-                    _token: csrfToken,
                     _method: 'PATCH',
                     status: statusValue
                 },
@@ -203,7 +255,10 @@
                     alert('Error updating order status. Please try again.');
                 }
             });
-        });
+        }
+        
+        // Initialize the status update forms
+        initStatusUpdateForms();
     });
 </script>
 @endsection 

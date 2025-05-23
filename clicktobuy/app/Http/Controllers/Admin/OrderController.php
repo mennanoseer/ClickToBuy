@@ -29,11 +29,12 @@ class OrderController extends Controller
             $query->where('status', $request->status);
         }
         
-        // Filter by date range
-        if ($request->has('date_from')) {
+        // Filter by date range with defaults to avoid errors
+        if ($request->has('date_from') && !empty($request->date_from)) {
             $query->whereDate('order_date', '>=', $request->date_from);
         }
-        if ($request->has('date_to')) {
+        
+        if ($request->has('date_to') && !empty($request->date_to)) {
             $query->whereDate('order_date', '<=', $request->date_to);
         }
         
@@ -49,6 +50,11 @@ class OrderController extends Controller
         }
         
         $orders = $query->orderBy('order_date', 'desc')->paginate(15);
+        
+        // If AJAX request, return only the table content
+        if ($request->ajax() || $request->has('ajax')) {
+            return view('admin.orders.partials.orders_table', compact('orders'))->render();
+        }
         
         return view('admin.orders.index', compact('orders'));
     }

@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // If the badge doesn't exist, create it
                     if (!notificationBadge) {
                         const badge = document.createElement('span');
-                        badge.className = 'badge badge-danger badge-counter';
+                        badge.className = 'badge bg-danger rounded-pill badge-counter';
                         badge.textContent = data.count;
                         document.querySelector('.notification-dropdown > a').appendChild(badge);
                     } else {
@@ -19,8 +19,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         notificationBadge.textContent = data.count;
                     }
                 } else if (notificationBadge) {
-                    // Remove badge if count is 0
-                    notificationBadge.remove();
+                    // Keep the badge but show 0 instead of removing it
+                    notificationBadge.textContent = '0';
                 }
             })
             .catch(error => console.error('Error checking notifications:', error));

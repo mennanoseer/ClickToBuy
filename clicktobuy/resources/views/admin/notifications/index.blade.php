@@ -4,9 +4,21 @@
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Notifications</h1>
-        <a href="{{ route('admin.notifications.markAllAsRead') }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-            <i class="fas fa-check fa-sm text-white-50"></i> Mark All as Read
-        </a>
+        <div class="d-flex">
+            <div class="dropdown me-2">
+                <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown">
+                    <i class="fas fa-filter fa-sm"></i> Filter
+                </button>
+                <div class="dropdown-menu dropdown-menu-end shadow">
+                    <a href="{{ route('admin.notifications.index') }}" class="dropdown-item {{ !request('status') ? 'active' : '' }}">All Notifications</a>
+                    <a href="{{ route('admin.notifications.index', ['status' => 'unread']) }}" class="dropdown-item {{ request('status') == 'unread' ? 'active' : '' }}">Unread</a>
+                    <a href="{{ route('admin.notifications.index', ['status' => 'read']) }}" class="dropdown-item {{ request('status') == 'read' ? 'active' : '' }}">Read</a>
+                </div>
+            </div>
+            <a href="{{ route('admin.notifications.markAllAsRead') }}" class="btn btn-sm btn-primary shadow-sm">
+                <i class="fas fa-check fa-sm text-white"></i> Mark All as Read
+            </a>
+        </div>
     </div>
 
     <div class="card shadow mb-4">
@@ -23,9 +35,8 @@
                                     <h6 class="mb-1">{{ $notification->data['title'] }}</h6>
                                     <small>{{ $notification->created_at->diffForHumans() }}</small>
                                 </div>
-                                <p class="mb-1">{{ $notification->data['message'] }}</p>
-                                <div class="mt-2">
-                                    <a href="{{ $notification->data['link'] ?? '#' }}" class="btn btn-sm btn-info">
+                                <p class="mb-1">{{ $notification->data['message'] }}</p>                                <div class="mt-2">
+                                    <a href="{{ route('admin.notifications.show', $notification->id) }}" class="btn btn-sm btn-info">
                                         View Details
                                     </a>
                                     @if(!$notification->read_at)

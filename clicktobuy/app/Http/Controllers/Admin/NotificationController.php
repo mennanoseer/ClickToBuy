@@ -14,15 +14,28 @@ class NotificationController extends Controller
         $this->middleware('admin');
     }
 
-    /**
-     * Display a listing of the notifications.
+    /**     * Display a listing of the notifications.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         // Get all notifications for the authenticated admin
-        $notifications = Auth::user()->notifications()->paginate(15);
+        $query = Auth::user()->notifications();
+        
+        // Filter by status if provided
+        if ($request->has('status')) {
+            if ($request->status === 'read') {
+                $query->whereNotNull('read_at');
+            } elseif ($request->status === 'unread') {
+                $query->whereNull('read_at');
+            }
+        }
+        
+        // Order by created_at in descending order (newest first)
+        $query->orderBy('created_at', 'desc');
+        
+        $notifications = $query->paginate(15);
         
         return view('admin.notifications.index', compact('notifications'));
     }
@@ -50,9 +63,7 @@ class NotificationController extends Controller
         Auth::user()->unreadNotifications->markAsRead();
         
         return redirect()->back()->with('success', 'All notifications marked as read');
-    }
-
-    /**
+    }    /**
      * Get unread notifications count via AJAX.
      *
      * @return \Illuminate\Http\JsonResponse
@@ -62,5 +73,30 @@ class NotificationController extends Controller
         $count = Auth::user()->unreadNotifications->count();
         
         return response()->json(['count' => $count]);
+    }
+    
+    /**
+     * Display the specified notification.
+     *
+     * @param  string  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $notification = Auth::user()->notifications()->findOrFail($id);
+        
+        // Mark notification as read
+        if ($notification && $notification->read_at === null) {
+            $notification->markAsRead();
+        }
+        
+        // Redirect based on notification type
+        if (isset($notification->data['link'])) {
+            return redirect($notification->data['link']);
+        }
+        
+        // If no specific link, redirect back to notifications list
+        return redirect()->route('admin.notifications.index')
+            ->with('success', 'Notification marked as read');
     }
 }

@@ -17,21 +17,21 @@
                 </button>
                 <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
                     aria-labelledby="filtersDropdown">
-                    <form action="{{ route('admin.customers.index') }}" method="GET" class="px-3 py-2" style="width: 300px;">
-                        <div class="form-group">
-                            <label for="search">Search</label>
-                            <input type="text" class="form-control" name="search" id="search" value="{{ request('search') }}" placeholder="Name or Email">
+                    <form class="px-3 py-2" style="width: 300px;" id="customersFilterForm">
+                        <div class="form-group mb-3">
+                            <label for="search" class="form-label">Search</label>
+                            <input type="text" class="form-control" name="search" id="customer_search" value="{{ request('search') }}" placeholder="Name or Email">
                         </div>
-                        <div class="form-group">
-                            <label for="date_from">Registered From</label>
-                            <input type="date" class="form-control" name="date_from" id="date_from" value="{{ request('date_from') }}">
+                        <div class="form-group mb-3">
+                            <label for="date_from" class="form-label">Registered From</label>
+                            <input type="date" class="form-control" name="date_from" id="customer_date_from" value="{{ request('date_from') }}">
                         </div>
-                        <div class="form-group">
-                            <label for="date_to">Registered To</label>
-                            <input type="date" class="form-control" name="date_to" id="date_to" value="{{ request('date_to') }}">
+                        <div class="form-group mb-3">
+                            <label for="date_to" class="form-label">Registered To</label>
+                            <input type="date" class="form-control" name="date_to" id="customer_date_to" value="{{ request('date_to') }}">
                         </div>
-                        <button type="submit" class="btn btn-primary btn-block">Apply Filters</button>
-                        <a href="{{ route('admin.customers.index') }}" class="btn btn-secondary btn-block">Clear Filters</a>
+                        <button type="button" id="applyCustomerFilters" class="btn btn-primary w-100 mb-2">Apply Filters</button>
+                        <button type="button" id="clearCustomerFilters" class="btn btn-secondary w-100">Clear Filters</button>
                     </form>
                 </div>
             </div>
@@ -59,7 +59,7 @@
                             <td>{{ $customer->user->phone_number ?? 'N/A' }}</td>
                             <td>{{ $customer->user->created_at->format('M d, Y') }}</td>
                             <td>
-                                <span class="badge badge-info">{{ $customer->orders_count ?? 0 }}</span>
+                                <span class="badge bg-info">{{ $customer->orders_count ?? 0 }}</span>
                             </td>
                             <td>
                                 <div class="btn-group">
@@ -94,6 +94,58 @@
             "ordering": true,
             "order": [[0, 'desc']]
         });
+        
+        // AJAX Filtering for Customers
+        $('#applyCustomerFilters').on('click', function() {
+            loadCustomersWithFilters();
+        });
+        
+        $('#clearCustomerFilters').on('click', function() {
+            $('#customer_search').val('');
+            $('#customer_date_from').val('');
+            $('#customer_date_to').val('');
+            loadCustomersWithFilters();
+        });
+        
+        function loadCustomersWithFilters() {
+            const search = $('#customer_search').val();
+            const dateFrom = $('#customer_date_from').val() || '';
+            const dateTo = $('#customer_date_to').val() || '';
+            
+            // Show loading indicator
+            $('.card-body').append('<div class="text-center py-4" id="loadingSpinner"><i class="fas fa-spinner fa-spin fa-2x"></i></div>');
+            
+            $.ajax({
+                url: "{{ route('admin.customers.index') }}",
+                type: 'GET',
+                data: {
+                    search: search,
+                    date_from: dateFrom,
+                    date_to: dateTo,
+                    ajax: 1
+                },
+                success: function(response) {
+                    // Remove loading indicator
+                    $('#loadingSpinner').remove();
+                    
+                    // Replace table content with new data
+                    $('.table-responsive').html(response);
+                    
+                    // Re-initialize DataTable
+                    $('#customersTable').DataTable({
+                        "paging": false,
+                        "info": false,
+                        "ordering": true,
+                        "order": [[0, 'desc']]
+                    });
+                },
+                error: function(xhr) {
+                    // Remove loading indicator
+                    $('#loadingSpinner').remove();
+                    alert('Error loading customers. Please try again.');
+                }
+            });
+        }
     });
 </script>
 @endsection 

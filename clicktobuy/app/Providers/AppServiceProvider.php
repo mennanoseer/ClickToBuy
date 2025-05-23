@@ -35,5 +35,11 @@ class AppServiceProvider extends ServiceProvider
             }
             $view->with('cartCount', $cartCount);
         });
+        
+        // Make sure CSRF token is included with AJAX requests
+        \Illuminate\Support\Facades\Schema::defaultStringLength(191);
+        
+        // Use custom Bootstrap 4 pagination template
+        \Illuminate\Pagination\Paginator::useBootstrap();
     }
 }

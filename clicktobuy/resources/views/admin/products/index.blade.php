@@ -78,19 +78,19 @@
                                 @if($product->image_url)
                                     <img src="{{ asset($product->image_url) }}" alt="{{ $product->name }}" class="img-thumbnail" width="50">
                                 @else
-                                    <span class="badge badge-secondary">No Image</span>
+                                    <span class="badge bg-secondary">No Image</span>
                                 @endif
                             </td>
                             <td>{{ $product->name }}</td>
                             <td>{{ $product->category ? $product->category->name : 'Uncategorized' }}</td>
                             <td>${{ number_format($product->price, 2) }}</td>
                             <td>
-                                <span class="badge badge-{{ $product->stock > 10 ? 'success' : ($product->stock > 0 ? 'warning' : 'danger') }}">
+                                <span class="badge bg-{{ $product->stock > 10 ? 'success' : ($product->stock > 0 ? 'warning' : 'danger') }}">
                                     {{ $product->stock }}
                                 </span>
                             </td>
                             <td>
-                                <span class="badge badge-{{ $product->active ? 'success' : 'danger' }}">
+                                <span class="badge bg-{{ $product->active ? 'success' : 'danger' }}">
                                     {{ $product->active ? 'Active' : 'Inactive' }}
                                 </span>
                             </td>

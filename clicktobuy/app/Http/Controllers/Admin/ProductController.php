@@ -38,6 +38,15 @@ class ProductController extends Controller
         if ($request->has('category_id') && $request->category_id !== '') {
             $query->where('category_id', $request->category_id);
         }
+        
+        // Filter by status
+        if ($request->has('status') && $request->status !== '') {
+            if ($request->status === 'active') {
+                $query->where('is_active', true);
+            } elseif ($request->status === 'inactive') {
+                $query->where('is_active', false);
+            }
+        }
 
         // Filter by stock status
         if ($request->has('stock_status')) {
@@ -98,7 +107,7 @@ class ProductController extends Controller
             'description' => $request->description,
             'price' => $request->price,
             'stock' => $request->stock,
-            'is_active' => $request->has('is_active'),
+            'is_active' => $request->is_active == 1 ? true : false,
             'category_id' => $request->category_id,
             'image' => $imagePath,
         ]);
@@ -156,7 +165,7 @@ class ProductController extends Controller
         $product->description = $request->description;
         $product->price = $request->price;
         $product->stock = $request->stock;
-        $product->is_active = $request->has('is_active');
+        $product->is_active = $request->is_active == 1 ? true : false;
         $product->category_id = $request->category_id;
         $product->save();
 

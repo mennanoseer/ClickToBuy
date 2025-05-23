@@ -131,10 +131,10 @@
                             </div>
                             <div class="card-body">
                                 <div class="form-group">
-                                    <label for="active">Status</label>
-                                    <select class="form-control" id="active" name="active">
-                                        <option value="1" {{ old('active', '1') == '1' ? 'selected' : '' }}>Active</option>
-                                        <option value="0" {{ old('active') == '0' ? 'selected' : '' }}>Inactive</option>
+                                    <label for="is_active">Status</label>
+                                    <select class="form-control" id="is_active" name="is_active">
+                                        <option value="1" {{ old('is_active', '1') == '1' ? 'selected' : '' }}>Active</option>
+                                        <option value="0" {{ old('is_active') == '0' ? 'selected' : '' }}>Inactive</option>
                                     </select>
                                 </div>
 

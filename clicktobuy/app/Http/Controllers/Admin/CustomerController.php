@@ -27,11 +27,24 @@ class CustomerController extends Controller
         $query = Customer::with('user');
         
         // Search by name or email
-        if ($request->has('search')) {
+        if ($request->has('search') && !empty($request->search)) {
             $searchTerm = $request->search;
             $query->whereHas('user', function($q) use ($searchTerm) {
                 $q->where('user_name', 'like', "%{$searchTerm}%")
                   ->orWhere('email', 'like', "%{$searchTerm}%");
+            });
+        }
+        
+        // Filter by date range with defaults to avoid errors
+        if ($request->has('date_from') && !empty($request->date_from)) {
+            $query->whereHas('user', function($q) use ($request) {
+                $q->whereDate('created_at', '>=', $request->date_from);
+            });
+        }
+        
+        if ($request->has('date_to') && !empty($request->date_to)) {
+            $query->whereHas('user', function($q) use ($request) {
+                $q->whereDate('created_at', '<=', $request->date_to);
             });
         }
         
@@ -47,7 +60,15 @@ class CustomerController extends Controller
             $query->orderBy($sortBy, $sortDirection);
         }
         
+        // Add order count to each customer
+        $query->withCount('orders');
+        
         $customers = $query->paginate(15);
+        
+        // If AJAX request, return only the table content
+        if ($request->ajax() || $request->has('ajax')) {
+            return view('admin.customers.partials.customers_table', compact('customers'))->render();
+        }
         
         return view('admin.customers.index', compact('customers'));
     }
