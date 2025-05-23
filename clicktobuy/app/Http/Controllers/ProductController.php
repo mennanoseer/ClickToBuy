@@ -14,6 +14,7 @@ use App\Services\ContentModeration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -24,23 +25,25 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
+        Log::info('Product index called with sort parameter:', ['sort' => $request->sort]);
+        
         $query = Product::where('is_active', true);
 
         // Filter by category
-        if ($request->has('category_id')) {
+        if ($request->has('category_id') && $request->category_id !== '') {
             $query->where('category_id', $request->category_id);
         }
 
         // Filter by price range
-        if ($request->has('min_price')) {
+        if ($request->has('min_price') && $request->min_price !== '') {
             $query->where('price', '>=', $request->min_price);
         }
-        if ($request->has('max_price')) {
+        if ($request->has('max_price') && $request->max_price !== '') {
             $query->where('price', '<=', $request->max_price);
         }
 
         // Search by name or description
-        if ($request->has('search')) {
+        if ($request->has('search') && $request->search !== '') {
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('name', 'like', "%{$searchTerm}%")
@@ -49,13 +52,36 @@ class ProductController extends Controller
         }
 
         // Sorting
-        $sortField = $request->sort_by ?? 'created_at';
-        $sortOrder = $request->sort_order ?? 'desc';
-        $query->orderBy($sortField, $sortOrder);
+        $sort = $request->get('sort', '');
+        Log::info('Applying sort:', ['sort_value' => $sort]);
 
-        $products = $query->paginate(12);
+        switch($sort) {
+            case 'price_low':
+                Log::info('Sorting by price ascending');
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_high':
+                Log::info('Sorting by price descending');
+                $query->orderBy('price', 'desc');
+                break;
+            case 'name':
+                Log::info('Sorting by name');
+                $query->orderBy('name', 'asc');
+                break;
+            case 'newest':
+                Log::info('Sorting by newest');
+                $query->orderBy('created_at', 'desc');
+                break;
+            default:
+                Log::info('Using default sort (created_at desc)');
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+
+        $products = $query->paginate(12)->withQueryString();
+        Log::info('Query executed, product count:', ['count' => $products->count()]);
+
         $categories = Category::all();
-
         return view('products.index', compact('products', 'categories'));
     }
 
@@ -68,7 +94,7 @@ class ProductController extends Controller
     public function show($id)
     {
         try {
-            \Log::info('Loading product details for ID: ' . $id);
+            Log::info('Loading product details for ID: ' . $id);
             
             $product = Product::findOrFail($id);
             
@@ -85,14 +111,14 @@ class ProductController extends Controller
                            ->orderBy('review_date', 'desc')
                            ->get();
                            
-            \Log::info('Found reviews for product', [
+            Log::info('Found reviews for product', [
                 'product_id' => $id, 
                 'review_count' => $reviews->count()
             ]);
     
             return view('products.show', compact('product', 'relatedProducts', 'reviews'));
         } catch (\Exception $e) {
-            \Log::error('Error loading product: ' . $e->getMessage(), [
+            Log::error('Error loading product: ' . $e->getMessage(), [
                 'product_id' => $id,
                 'trace' => $e->getTraceAsString()
             ]);
@@ -113,7 +139,7 @@ class ProductController extends Controller
     {
         // Auth middleware is applied in the routes file
         try {
-            \Log::info('Review submission started for product ID: ' . $id, $request->all());
+            Log::info('Review submission started for product ID: ' . $id, $request->all());
             
             $request->validate([
                 'rating' => 'required|integer|min:1|max:5',
@@ -124,14 +150,14 @@ class ProductController extends Controller
             
             // Check if user has customer profile
             $user = auth()->user();
-            \Log::info('User details', [
+            Log::info('User details', [
                 'user_id' => $user->user_id,
                 'user_name' => $user->user_name,
                 'has_customer' => $user->customer ? 'yes' : 'no'
             ]);
             
             if (!$user->customer) {
-                \Log::error('User has no customer profile', ['user_id' => $user->user_id]);
+                Log::error('User has no customer profile', ['user_id' => $user->user_id]);
                 
                 // Try to fix by creating a customer profile
                 try {
@@ -153,18 +179,18 @@ class ProductController extends Controller
                         'created_date' => now(),
                     ]);
                     
-                    \Log::info('Created customer profile', ['customer_id' => $customer->customer_id]);
+                    Log::info('Created customer profile', ['customer_id' => $customer->customer_id]);
                     // Refresh user to get the new customer relationship
-                    $user = $user->fresh();
+                    $user = User::find($user->user_id);
                 } catch (\Exception $e) {
-                    \Log::error('Failed to create customer profile', ['error' => $e->getMessage()]);
+                    Log::error('Failed to create customer profile', ['error' => $e->getMessage()]);
                     return redirect()->back()->with('error', 'Your account is not properly set up. Please contact support.');
                 }
             }
 
             // Get the customer record safely
             $customer = $user->customer;
-            \Log::info('Customer details before review creation', [
+            Log::info('Customer details before review creation', [
                 'customer_id' => $customer->customer_id,
                 'loyalty_points' => $customer->loyalty_points
             ]);
@@ -175,7 +201,7 @@ class ProductController extends Controller
                                     ->first();
                                     
             if ($existingReview) {
-                \Log::info('Customer already has a review for this product', [
+                Log::info('Customer already has a review for this product', [
                     'review_id' => $existingReview->review_id
                 ]);
                 
@@ -198,14 +224,14 @@ class ProductController extends Controller
                 'comment' => $request->comment,
                 'review_date' => now()
             ];
-            \Log::info('Creating review with data', $reviewData);
+            Log::info('Creating review with data', $reviewData);
             
             // Using transaction to ensure data consistency
             DB::beginTransaction();
             try {
                 $review = Review::create($reviewData);
                 
-                \Log::info('Review created successfully', ['review_id' => $review->review_id]);
+                Log::info('Review created successfully', ['review_id' => $review->review_id]);
                 
                 // Check for negative content or low ratings that require admin attention
                 $hasNegativeRating = ContentModeration::hasNegativeRating($request->rating);
@@ -222,7 +248,7 @@ class ProductController extends Controller
                         $admin->notify(new NewReviewNotification($review));
                     }
                     
-                    \Log::info('Review flagged for moderation', [
+                    Log::info('Review flagged for moderation', [
                         'review_id' => $review->review_id,
                         'negative_rating' => $hasNegativeRating,
                         'negative_content' => $hasNegativeContent
@@ -230,7 +256,7 @@ class ProductController extends Controller
                 }
                 
                 // Clear product cache if any to ensure new review appears
-                \Cache::forget('product_'.$product->product_id.'_reviews');
+                Cache::forget('product_'.$product->product_id.'_reviews');
                 
                 // Refresh the product to get updated review count
                 $product->refresh();
@@ -238,7 +264,7 @@ class ProductController extends Controller
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollBack();
-                \Log::error('Database error creating review: ' . $e->getMessage(), [
+                Log::error('Database error creating review: ' . $e->getMessage(), [
                     'data' => $reviewData,
                     'trace' => $e->getTraceAsString()
                 ]);
@@ -250,7 +276,7 @@ class ProductController extends Controller
 
             return redirect()->back()->with('success', 'Review submitted successfully!');
         } catch (\Exception $e) {
-            \Log::error('Error creating review: ' . $e->getMessage(), [
+            Log::error('Error creating review: ' . $e->getMessage(), [
                 'user_id' => auth()->id(),
                 'product_id' => $id,
                 'trace' => $e->getTraceAsString()

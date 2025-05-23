@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TestMail;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
@@ -41,13 +43,17 @@ Route::post('/products/{id}/reviews', [ProductController::class, 'storeReview'])
 Auth::routes();
 
 // Protected routes (require login)
-Route::middleware(['auth'])->group(function () {
-    // Cart routes
+Route::middleware(['auth'])->group(function () {    // Cart routes
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
     Route::patch('/cart/{id}', [CartController::class, 'updateQuantity'])->name('cart.update');
     Route::delete('/cart/{id}', [CartController::class, 'removeItem'])->name('cart.remove');
     Route::delete('/cart', [CartController::class, 'clearCart'])->name('cart.clear');
+    
+    // AJAX Cart routes
+    Route::post('/cart/add-ajax', [CartController::class, 'addToCartAjax'])->name('cart.add.ajax');
+    Route::patch('/cart/{id}/ajax', [CartController::class, 'updateQuantityAjax'])->name('cart.update.ajax');
+    Route::delete('/cart/{id}/ajax', [CartController::class, 'removeItemAjax'])->name('cart.remove.ajax');
     
     // Wishlist routes
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
@@ -104,5 +110,15 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
 });
 
 Auth::routes();
+
+// Test email route
+Route::get('/send-test-email', function () {
+    try {
+        Mail::to('menna.noseer@ejust.edu.eg')->send(new TestMail());
+        return 'Test email sent successfully!';
+    } catch (\Exception $e) {
+        return 'Error sending email: ' . $e->getMessage();
+    }
+});
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

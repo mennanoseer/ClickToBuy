@@ -19,6 +19,7 @@
     <link href="{{ asset('css/admin-notifications.css') }}" rel="stylesheet">
     <link href="{{ asset('css/admin-fixes.css') }}" rel="stylesheet">
     <link href="{{ asset('css/table-visibility-fix.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/table-border-fix.css') }}" rel="stylesheet">
     
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -33,6 +34,16 @@
         body {
             font-family: 'Nunito', sans-serif;
             background-color: #f8f9fc;
+        }
+        
+        /* Remove red borders from tables */
+        .table, 
+        .table th, 
+        .table td, 
+        .table-bordered,
+        .table-bordered th, 
+        .table-bordered td {
+            border-color: #dee2e6 !important;
         }
         .navbar-brand {
             font-weight: bold;

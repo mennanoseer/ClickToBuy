@@ -33,21 +33,33 @@ class NotificationSeeder extends Seeder
         
         foreach ($adminUsers as $admin) {
             // Seed new order notifications
-            foreach ($orders as $order) {
-                $admin->notify(new NewOrderNotification($order));
-                $this->command->info("New order notification created for admin {$admin->user_name}");
+            if ($orders->isNotEmpty()) {
+                foreach ($orders as $order) {
+                    $admin->notify(new NewOrderNotification($order));
+                    $this->command->info("New order notification created for admin {$admin->user_name}");
+                }
+            } else {
+                $this->command->info("No orders found. Skipping order notifications.");
             }
             
             // Seed low stock notifications
-            foreach ($products as $product) {
-                $admin->notify(new LowStockNotification($product));
-                $this->command->info("Low stock notification created for admin {$admin->user_name}");
+            if ($products->isNotEmpty()) {
+                foreach ($products as $product) {
+                    $admin->notify(new LowStockNotification($product));
+                    $this->command->info("Low stock notification created for admin {$admin->user_name}");
+                }
+            } else {
+                $this->command->info("No low stock products found. Skipping low stock notifications.");
             }
             
             // Seed negative review notifications
-            foreach ($reviews as $review) {
-                $admin->notify(new NewReviewNotification($review));
-                $this->command->info("New review notification created for admin {$admin->user_name}");
+            if ($reviews->isNotEmpty()) {
+                foreach ($reviews as $review) {
+                    $admin->notify(new NewReviewNotification($review));
+                    $this->command->info("New review notification created for admin {$admin->user_name}");
+                }
+            } else {
+                $this->command->info("No negative reviews found. Skipping review notifications.");
             }
         }
     }

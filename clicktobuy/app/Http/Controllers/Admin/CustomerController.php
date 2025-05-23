@@ -85,10 +85,20 @@ class CustomerController extends Controller
             'user', 
             'orders' => function($query) {
                 $query->orderBy('order_date', 'desc');
+            },
+            'reviews' => function($query) {
+                $query->with('product')->orderBy('created_at', 'desc');
             }
-        ])->findOrFail($id);
+        ])->withCount('orders')->findOrFail($id);
         
-        return view('admin.customers.show', compact('customer'));
+        // Get the orders and reviews from the relationships
+        $orders = $customer->orders;
+        $reviews = $customer->reviews;
+        
+        // Calculate total spent
+        $customer->total_spent = $orders->sum('total_price');
+        
+        return view('admin.customers.show', compact('customer', 'orders', 'reviews'));
     }
 
     /**

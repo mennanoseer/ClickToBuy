@@ -65,7 +65,8 @@ class ReviewController extends Controller
     public function show($id)
     {
         $review = Review::with(['customer.user', 'product'])->findOrFail($id);
-        return view('admin.reviews.show', compact('review'));
+        $customerReviewCount = Review::where('customer_id', $review->customer_id)->count();
+        return view('admin.reviews.show', compact('review', 'customerReviewCount'));
     }
 
     /**

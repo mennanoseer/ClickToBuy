@@ -34,8 +34,8 @@
                             <td>{{ Str::limit($category->description, 50) }}</td>
                             <td>{{ $category->products_count }}</td>
                             <td>
-                                <span class="badge bg-{{ $category->active ? 'success' : 'danger' }}">
-                                    {{ $category->active ? 'Active' : 'Inactive' }}
+                                <span class="badge bg-{{ $category->is_active ? 'success' : 'danger' }}">
+                                    {{ $category->is_active ? 'Active' : 'Inactive' }}
                                 </span>
                             </td>
                             <td>

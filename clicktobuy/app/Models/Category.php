@@ -14,6 +14,14 @@ class Category extends Model
     protected $fillable = [
         'name',
         'parent_category_id',
+        'is_active',
+        'description',
+        'seo_title',
+        'seo_description',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
     ];
 
     public function products()

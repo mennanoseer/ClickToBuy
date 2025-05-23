@@ -20,8 +20,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 cell.style.color = "#000000"; // Force black text color
                 cell.style.backgroundColor = "#ffffff"; // Force white background
                 
-                // Add a warning border
-                cell.style.border = "2px solid red";
+                // Use a subtle border instead of red
+                cell.style.border = "1px solid #dee2e6";
             }
         });
         
@@ -43,8 +43,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     badge.style.color = "#ffffff"; // White text for other badges
                 }
                 
-                // Add a warning border
-                badge.style.border = "2px solid red";
+                // Add a subtle border instead of red
+                badge.style.border = "1px solid #dee2e6";
             }
         });
     }

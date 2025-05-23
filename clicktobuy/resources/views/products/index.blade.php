@@ -127,11 +127,11 @@
                                         <a href="{{ route('products.show', $product->product_id) }}" class="btn btn-sm btn-primary">View Details</a>
                                     </div>
                                     <div class="d-flex justify-content-between">
-                                        <form action="{{ route('cart.add') }}" method="POST">
+                                        <form action="{{ route('cart.add') }}" method="POST" class="add-to-cart-form">
                                             @csrf
                                             <input type="hidden" name="product_id" value="{{ $product->product_id }}">
                                             <input type="hidden" name="quantity" value="1">
-                                            <button type="submit" class="btn btn-sm btn-success add-to-cart" {{ $product->stock <= 0 ? 'disabled' : '' }}>
+                                            <button type="submit" class="btn btn-sm btn-success add-to-cart" data-product-id="{{ $product->product_id }}" {{ $product->stock <= 0 ? 'disabled' : '' }}>
                                                 <i class="fas fa-shopping-cart me-1"></i> Add to Cart
                                             </button>
                                         </form>

@@ -47,15 +47,29 @@ class CategoryController extends Controller
         $request->validate([
             'name' => 'required|string|max:100',
             'parent_category_id' => 'nullable|exists:categories,category_id',
+            'is_active' => 'nullable|boolean',
+            'description' => 'nullable|string',
+            'seo_title' => 'nullable|string|max:255',
+            'seo_description' => 'nullable|string',
         ]);
 
-        Category::create([
-            'name' => $request->name,
-            'parent_category_id' => $request->parent_category_id,
-        ]);
+        try {
+            Category::create([
+                'name' => $request->name,
+                'parent_category_id' => $request->parent_category_id,
+                'is_active' => $request->has('is_active') ? (bool)$request->is_active : true,
+                'description' => $request->description,
+                'seo_title' => $request->seo_title,
+                'seo_description' => $request->seo_description,
+            ]);
 
-        return redirect()->route('admin.categories.index')
-            ->with('success', 'Category created successfully!');
+            return redirect()->route('admin.categories.index')
+                ->with('success', 'Category created successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Error creating category: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     /**
@@ -84,6 +98,10 @@ class CategoryController extends Controller
         $request->validate([
             'name' => 'required|string|max:100',
             'parent_category_id' => 'nullable|exists:categories,category_id',
+            'is_active' => 'nullable|boolean',
+            'description' => 'nullable|string',
+            'seo_title' => 'nullable|string|max:255',
+            'seo_description' => 'nullable|string',
         ]);
 
         $category = Category::findOrFail($id);
@@ -95,12 +113,22 @@ class CategoryController extends Controller
                 ->withInput();
         }
         
-        $category->name = $request->name;
-        $category->parent_category_id = $request->parent_category_id;
-        $category->save();
+        try {
+            $category->name = $request->name;
+            $category->parent_category_id = $request->parent_category_id;
+            $category->is_active = $request->has('is_active') ? (bool)$request->is_active : true;
+            $category->description = $request->description;
+            $category->seo_title = $request->seo_title;
+            $category->seo_description = $request->seo_description;
+            $category->save();
 
-        return redirect()->route('admin.categories.index')
-            ->with('success', 'Category updated successfully!');
+            return redirect()->route('admin.categories.index')
+                ->with('success', 'Category updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Error updating category: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     /**

@@ -1,0 +1,51 @@
+/* This CSS file overrides the red border color in admin dashboard tables */
+
+/* Target all bordered tables in the admin area */
+.table-bordered,
+.table-bordered th,
+.table-bordered td {
+    border-color: #dee2e6 !important; /* Bootstrap default border color */
+}
+
+/* Additional selectors to ensure override */
+table.table,
+table.table th,
+table.table td {
+    border-color: #dee2e6 !important;
+}
+
+/* Target tables on admin dashboard */
+#productsTable,
+#productsTable th,
+#productsTable td,
+#ordersTable,
+#ordersTable th,
+#ordersTable td,
+#categoriesTable,
+#categoriesTable th,
+#categoriesTable td,
+#usersTable,
+#usersTable th,
+#usersTable td,
+#reviewsTable,
+#reviewsTable th,
+#reviewsTable td {
+    border-color: #dee2e6 !important;
+}
+
+/* Extremely broad selector to override any other specificity */
+[class*="table"],
+[class*="table"] th,
+[class*="table"] td,
+table, 
+table th, 
+table td {
+    border-color: #dee2e6 !important;
+}
+
+/* Override any inline styles */
+table[style*="border"],
+th[style*="border"],
+td[style*="border"] {
+    border-color: #dee2e6 !important;
+}

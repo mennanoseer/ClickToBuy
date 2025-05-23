@@ -73,17 +73,8 @@ class DatabaseSeeder extends Seeder
         Category::create(['name' => 'Fiction', 'parent_category_id' => $books->category_id]);
         Category::create(['name' => 'Non-Fiction', 'parent_category_id' => $books->category_id]);
         
-        // Create example products
-        for ($i = 1; $i <= 20; $i++) {
-            Product::create([
-                'name' => "Product $i",
-                'description' => "This is the description for product $i. It contains detailed information about the product's features and benefits.",
-                'price' => rand(10, 1000) / 10,
-                'stock' => rand(5, 100),
-                'is_active' => true,
-                'category_id' => rand(1, 6),
-            ]);
-        }
+        // Products will be imported using: php artisan products:import
+        // instead of being created by the seeder
         
         // Run additional seeders
         $this->call([

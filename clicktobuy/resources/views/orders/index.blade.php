@@ -3,61 +3,66 @@
 @section('title', 'My Orders')
 
 @section('content')
+<style>
+    /* Hide any badges appearing in the card header area */
+    .order-history-header .badge, 
+    .order-history-header + .badge {
+        display: none !important;
+    }
+    
+    /* Ensure badges are properly positioned in the status column */
+    .order-status-badge {
+        position: static !important;
+        display: inline-block !important;
+    }
+</style>
+
 <div class="container">
     <h1 class="mb-4">My Orders</h1>
     
     @if($orders->count() > 0)
         <div class="card">
-            <div class="card-header">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Order History</h5>
-                </div>
+            <div class="order-history-header py-2 px-3 bg-light border-bottom">
+                <h5 class="mb-0">Order History</h5>
             </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Order #</th>
+                            <th>Date</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($orders as $loop_index => $order)
                             <tr>
-                                <th>Order #</th>
-                                <th>Date</th>
-                                <th>Items</th>
-                                <th>Total</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                                <td>{{ $loop_index + 1 }}</td>
+                                <td>{{ $order->order_date->format('M d, Y') }}</td>
+                                <td>{{ $order->orderItems->count() }}</td>
+                                <td>${{ number_format($order->total_price, 2) }}</td>
+                                <td>
+                                    <span class="order-status-badge badge rounded-pill {{ $order->status == 'pending' ? 'bg-warning text-dark' : 
+                                                        ($order->status == 'processing' ? 'bg-info text-dark' : 
+                                                        ($order->status == 'shipped' ? 'bg-primary' : 
+                                                        ($order->status == 'delivered' ? 'bg-success' : 
+                                                        ($order->status == 'cancelled' ? 'bg-danger' : 'bg-secondary')))) 
+                                    }}">
+                                        {{ ucfirst($order->status) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ route('orders.show', $order->order_id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($orders as $order)
-                                <tr>
-                                    <td>{{ $order->order_id }}</td>
-                                    <td>{{ $order->order_date->format('M d, Y') }}</td>
-                                    <td>{{ $order->orderItems->count() }}</td>
-                                    <td>${{ number_format($order->total_price, 2) }}</td>
-                                    <td>
-                                        @if($order->status == 'pending')
-                                            <span class="badge bg-warning">Pending</span>
-                                        @elseif($order->status == 'processing')
-                                            <span class="badge bg-info">Processing</span>
-                                        @elseif($order->status == 'shipped')
-                                            <span class="badge bg-primary">Shipped</span>
-                                        @elseif($order->status == 'delivered')
-                                            <span class="badge bg-success">Delivered</span>
-                                        @elseif($order->status == 'cancelled')
-                                            <span class="badge bg-danger">Cancelled</span>
-                                        @else
-                                            <span class="badge bg-secondary">{{ ucfirst($order->status) }}</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <a href="{{ route('orders.show', $order->order_id) }}" class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-eye"></i> View
-                                        </a>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
             @if($orders->hasPages())
                 <div class="card-footer">

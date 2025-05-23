@@ -16,10 +16,13 @@
     
     <!-- Custom CSS -->
     <link href="{{ asset('css/shopping.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/cart-animations.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/table-visibility-fix.css') }}" rel="stylesheet">
 
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     <script src="{{ asset('js/shopping.js') }}" defer></script>
+    <script src="{{ asset('js/text-visibility-check.js') }}"></script>
 </head>
 <body>
     <div id="app">
@@ -50,12 +53,16 @@
                     <ul class="navbar-nav ms-auto">
                         <!-- Cart & Wishlist Links -->
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('cart.index') }}">
+                            <a class="nav-link cart-count" href="{{ route('cart.index') }}">
                                 <i class="fas fa-shopping-cart"></i> Cart
                                 @auth
                                     @if(Auth::user()->customer && Auth::user()->customer->cart && Auth::user()->customer->cart->cartItems->count() > 0)
-                                        <span class="badge bg-danger">{{ Auth::user()->customer->cart->cartItems->count() }}</span>
+                                        <span class="badge bg-danger cart-badge">{{ Auth::user()->customer->cart->cartItems->count() }}</span>
+                                    @else
+                                        <span class="badge bg-danger cart-badge" style="display: none;">0</span>
                                     @endif
+                                @else
+                                    <span class="badge bg-danger cart-badge" style="display: none;">0</span>
                                 @endauth
                             </a>
                         </li>

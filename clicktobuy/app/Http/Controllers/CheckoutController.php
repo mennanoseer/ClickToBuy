@@ -174,7 +174,7 @@ class CheckoutController extends Controller
                 ->with('success', 'Your order has been placed successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Checkout Error: ' . $e->getMessage(), [
+            Log::error('Checkout Error: ' . $e->getMessage(), [
                 'user_id' => auth()->id(),
                 'trace' => $e->getTraceAsString()
             ]);

@@ -16,8 +16,9 @@ class ExternalProductService
      */
     public function importProductsFromAPI($limit = 10)
     {
-        // Fetch products from Fake Store API
-        $response = Http::get("https://fakestoreapi.com/products?limit={$limit}");
+        // Fetch products from Fake Store API with SSL verification disabled
+        $response = Http::withOptions(['verify' => false])
+                     ->get("https://fakestoreapi.com/products?limit={$limit}");
         
         if ($response->successful()) {
             $products = $response->json();

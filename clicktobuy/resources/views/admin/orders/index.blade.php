@@ -37,7 +37,7 @@
                             <label for="date_to" class="form-label">Date To</label>
                             <input type="date" class="form-control" name="date_to" id="date_to" value="{{ request('date_to') }}">
                         </div>
-                        <button type="button" id="applyFilters" class="btn btn-primary w-100 mb-2">Apply Filters</button>
+                        <button type="submit" class="btn btn-primary w-100 mb-2">Apply Filters</button>
                         <button type="button" id="clearFilters" class="btn btn-secondary w-100">Clear Filters</button>
                     </form>
                 </div>
@@ -45,76 +45,7 @@
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered" id="ordersTable" width="100%" cellspacing="0">
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Customer</th>
-                            <th>Date</th>
-                            <th>Total</th>
-                            <th>Status</th>
-                            <th>Payment</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($orders as $order)
-                        <tr>
-                            <td>{{ $order->order_id }}</td>
-                            <td>
-                                <a href="{{ route('admin.customers.show', $order->customer_id) }}">
-                                    {{ $order->customer->user->user_name }}
-                                </a>
-                            </td>
-                            <td>{{ $order->order_date->format('M d, Y H:i') }}</td>
-                            <td>${{ number_format($order->total_price, 2) }}</td>
-                            <td>
-                                <span class="badge bg-{{ 
-                                    $order->status == 'pending' ? 'warning' : 
-                                    ($order->status == 'processing' ? 'info' : 
-                                    ($order->status == 'shipped' ? 'primary' : 
-                                    ($order->status == 'delivered' ? 'success' : 
-                                    'danger'))) }} status-badge" data-order-id="{{ $order->order_id }}">
-                                    {{ ucfirst($order->status) }}
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge bg-{{ $order->payment_status == 'paid' ? 'success' : 'secondary' }}">
-                                    {{ ucfirst($order->payment_status) }}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="btn-group">
-                                    <a href="{{ route('admin.orders.show', $order->order_id) }}" class="btn btn-sm btn-info" title="View Order">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Update Status">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <div class="dropdown-menu">
-                                        @foreach(['pending', 'processing', 'shipped', 'delivered', 'cancelled'] as $status)
-                                            @if($status != $order->status)
-                                            <form action="{{ route('admin.orders.updateStatus', $order->order_id) }}" class="status-update-form" method="POST" data-order-id="{{ $order->order_id }}">
-                                                @csrf
-                                                @method('PATCH')
-                                                <input type="hidden" name="status" value="{{ $status }}">
-                                                <button type="submit" class="dropdown-item">
-                                                    Mark as {{ ucfirst($status) }}
-                                                </button>
-                                            </form>
-                                            @endif
-                                        @endforeach
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-
-                <div class="mt-3">
-                    {{ $orders->appends(request()->query())->links() }}
-                </div>
+                @include('admin.orders.partials.orders_table')
             </div>
         </div>
     </div>
@@ -123,142 +54,104 @@
 
 @section('scripts')
 <script>
-    $(document).ready(function() {
-        $('#ordersTable').DataTable({
-            "paging": false,
-            "info": false,
-            "ordering": true,
-            "order": [[2, 'desc']] // Sort by date column (index 2) in descending order
+$(document).ready(function() {
+    // Initialize DataTable
+    const table = $('#ordersTable').DataTable({
+        "paging": false,
+        "info": false,
+        "ordering": true,
+        "order": [[2, 'desc']] // Sort by date column (index 2) in descending order
+    });
+
+    // Handle filter form submission
+    $('#ordersFilterForm').on('submit', function(e) {
+        e.preventDefault();
+        const form = $(this);
+        const url = "{{ route('admin.orders.index') }}";
+        const formData = new FormData(form[0]);
+        formData.append('ajax', '1');
+
+        // Show loading spinner
+        $('.card-body').append('<div class="text-center py-4" id="loadingSpinner"><i class="fas fa-spinner fa-spin fa-2x"></i></div>');
+        
+        // Make the AJAX request
+        $.ajax({
+            url: url,
+            type: 'GET',
+            data: form.serialize() + '&ajax=1',
+            success: function(response) {
+                // Remove loading spinner
+                $('#loadingSpinner').remove();
+                
+                // Update the table content
+                $('.table-responsive').html(response);
+                
+                // Reinitialize DataTable
+                $('#ordersTable').DataTable({
+                    "paging": false,
+                    "info": false,
+                    "ordering": true,
+                    "order": [[2, 'desc']]
+                });
+
+                // Update URL with filter parameters
+                const params = new URLSearchParams(form.serialize());
+                const newUrl = window.location.pathname + '?' + params.toString();
+                window.history.pushState({}, '', newUrl);
+
+                // Close the dropdown
+                $('#filtersDropdown').dropdown('hide');
+            },
+            error: function(xhr) {
+                // Remove loading spinner
+                $('#loadingSpinner').remove();
+                alert('Error loading orders. Please try again.');
+            }
         });
+    });
+
+    // Handle clear filters
+    $('#clearFilters').on('click', function() {
+        // Reset form fields
+        $('#status').val('');
+        $('#date_from').val('');
+        $('#date_to').val('');
         
-        // AJAX Filtering
-        $('#applyFilters').on('click', function() {
-            loadOrdersWithFilters();
-        });
-        
-        $('#clearFilters').on('click', function() {
-            $('#status').val('');
-            $('#date_from').val('');
-            $('#date_to').val('');
-            loadOrdersWithFilters();
-        });
-        
-        function loadOrdersWithFilters() {
-            const status = $('#status').val();
-            const dateFrom = $('#date_from').val() || '';
-            const dateTo = $('#date_to').val() || '';
-            
-            // Show loading indicator
-            $('.card-body').append('<div class="text-center py-4" id="loadingSpinner"><i class="fas fa-spinner fa-spin fa-2x"></i></div>');
-            
-            $.ajax({
-                url: "{{ route('admin.orders.index') }}",
-                type: 'GET',
-                data: {
-                    status: status,
-                    date_from: dateFrom,
-                    date_to: dateTo,
-                    ajax: 1
-                },
-                success: function(response) {
-                    // Remove loading indicator
-                    $('#loadingSpinner').remove();
-                    
-                    // Replace table content with new data
-                    $('.table-responsive').html(response);
-                    
-                    // Reinitialize status update forms
-                    initStatusUpdateForms();
-                },
-                error: function(xhr) {
-                    // Remove loading indicator
-                    $('#loadingSpinner').remove();
-                    
-                    alert('Error loading orders. Please try again.');
-                }
-            });
-        }
-        
-        // Initialize status update forms function
-        function initStatusUpdateForms() {
-            // Handle form submission with AJAX
-            $('.status-update-form').on('submit', function(e) {
+        // Submit the form to clear filters
+        $('#ordersFilterForm').submit();
+    });
+
+    // Initialize status update functionality
+    function initStatusUpdateForms() {
+        $('.status-update-form').on('submit', function(e) {
             e.preventDefault();
             const form = $(this);
             const orderId = form.data('order-id');
-            const statusValue = form.find('input[name="status"]').val();
-            const csrfToken = form.find('input[name="_token"]').val();
             
             $.ajax({
                 url: form.attr('action'),
                 type: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken
-                },
-                data: {
-                    _method: 'PATCH',
-                    status: statusValue
-                },
-                dataType: 'json',
+                data: form.serialize(),
                 success: function(response) {
                     if (response.success) {
-                        // Update the badge
-                        const statusBadge = $(`span.status-badge[data-order-id="${orderId}"]`);
-                        statusBadge.removeClass('bg-warning bg-info bg-primary bg-success bg-danger');
-                        
-                        // Add the appropriate class based on the new status
-                        switch(statusValue) {
-                            case 'pending':
-                                statusBadge.addClass('bg-warning');
-                                break;
-                            case 'processing':
-                                statusBadge.addClass('bg-info');
-                                break;
-                            case 'shipped':
-                                statusBadge.addClass('bg-primary');
-                                break;
-                            case 'delivered':
-                                statusBadge.addClass('bg-success');
-                                break;
-                            case 'cancelled':
-                                statusBadge.addClass('bg-danger');
-                                break;
-                        }
-                        
-                        // Update the text
-                        statusBadge.text(statusValue.charAt(0).toUpperCase() + statusValue.slice(1));
+                        // Update the status badge
+                        const badge = $(`.status-badge[data-order-id="${orderId}"]`);
+                        badge.removeClass().addClass(`badge status-badge ${response.order.statusClass}`);
+                        badge.text(response.order.status.charAt(0).toUpperCase() + response.order.status.slice(1));
                         
                         // Show success message
-                        alert('Order status updated to ' + statusValue);
-                        
-                        // If we're on the dashboard page, refresh the recent orders
-                        if (window.refreshRecentOrders) {
-                            window.refreshRecentOrders();
-                        }
-                        
-                        // If there's an instance of the dashboard with recent orders, refresh it
-                        if ($('#recent-orders-container').length) {
-                            $.ajax({
-                                url: '/admin/api/recent-orders',
-                                type: 'GET',
-                                dataType: 'json',
-                                success: function(response) {
-                                    if (response.success) {
-                                        $('#recent-orders-container').html(response.html);
-                                    }
-                                }
-                            });
-                        }
+                        alert('Order status updated successfully!');
                     }
                 },
                 error: function() {
                     alert('Error updating order status. Please try again.');
                 }
             });
-        }
-        
-        // Initialize the status update forms
-        initStatusUpdateForms();
-    });
+        });
+    }
+
+    // Initialize status update forms on page load
+    initStatusUpdateForms();
+});
 </script>
 @endsection 

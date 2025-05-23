@@ -24,7 +24,7 @@
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table table-hover mb-0">
+                            <table class="table table-hover mb-0 cart-table">
                                 <thead class="table-light">
                                     <tr>
                                         <th scope="col">Product</th>
@@ -36,7 +36,7 @@
                                 </thead>
                                 <tbody>
                                     @foreach($cart->cartItems as $item)
-                                        <tr>
+                                        <tr data-item-id="{{ $item->cart_item_id }}" class="cart-item-row">
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     @if($item->product->image_url)
@@ -59,27 +59,21 @@
                                             </td>
                                             <td>${{ number_format($item->product->price, 2) }}</td>
                                             <td>
-                                                <form action="{{ route('cart.update', $item->cart_item_id) }}" method="POST" class="quantity-control">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <button type="button" class="btn btn-sm btn-outline-secondary decrement-btn" {{ $item->quantity <= 1 ? 'disabled' : '' }}>
+                                                <div class="quantity-control d-flex align-items-center" data-item-id="{{ $item->cart_item_id }}" data-product-stock="{{ $item->product->stock }}">
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary decrement-btn me-2" {{ $item->quantity <= 1 ? 'disabled' : '' }}>
                                                         <i class="fas fa-minus"></i>
                                                     </button>
-                                                    <input type="number" name="quantity" value="{{ $item->quantity }}" min="1" max="{{ $item->product->stock }}" class="form-control form-control-sm quantity-input" style="width: 60px;" readonly>
-                                                    <button type="button" class="btn btn-sm btn-outline-secondary increment-btn" {{ $item->quantity >= $item->product->stock ? 'disabled' : '' }}>
+                                                    <input type="number" name="quantity" value="{{ $item->quantity }}" min="1" max="{{ $item->product->stock }}" class="form-control form-control-sm quantity-input text-center" style="width: 60px;" readonly>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary increment-btn ms-2" {{ $item->quantity >= $item->product->stock ? 'disabled' : '' }}>
                                                         <i class="fas fa-plus"></i>
                                                     </button>
-                                                </form>
+                                                </div>
                                             </td>
-                                            <td>${{ number_format($item->product->price * $item->quantity, 2) }}</td>
+                                            <td class="item-total">${{ number_format($item->product->price * $item->quantity, 2) }}</td>
                                             <td>
-                                                <form action="{{ route('cart.remove', $item->cart_item_id) }}" method="POST">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                        <i class="fas fa-trash-alt"></i>
-                                                    </button>
-                                                </form>
+                                                <button type="button" class="btn btn-sm btn-outline-danger remove-item-btn" data-item-id="{{ $item->cart_item_id }}">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -112,16 +106,16 @@
                         
                         <div class="d-flex justify-content-between mb-2">
                             <span>Subtotal:</span>
-                            <span>${{ number_format($subtotal, 2) }}</span>
+                            <span class="cart-subtotal">${{ number_format($subtotal, 2) }}</span>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
                             <span>Tax (10%):</span>
-                            <span>${{ number_format($tax, 2) }}</span>
+                            <span class="cart-tax">${{ number_format($tax, 2) }}</span>
                         </div>
                         <hr>
                         <div class="d-flex justify-content-between mb-3">
                             <strong>Total:</strong>
-                            <strong>${{ number_format($total, 2) }}</strong>
+                            <strong class="cart-total">${{ number_format($total, 2) }}</strong>
                         </div>
                         
                         <a href="{{ route('checkout.index') }}" class="btn btn-primary w-100">
@@ -132,8 +126,8 @@
             </div>
         </div>
     @else
-        <div class="card">
-            <div class="card-body empty-state">
+        <div class="card cart-empty-state">
+            <div class="card-body empty-state text-center">
                 <i class="fas fa-shopping-cart fa-4x mb-3 text-muted"></i>
                 <h3>Your Cart is Empty</h3>
                 <p class="mb-4">Looks like you haven't added any products to your cart yet.</p>

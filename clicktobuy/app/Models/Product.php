@@ -25,6 +25,31 @@ class Product extends Model
     protected $casts = [
         'is_active' => 'boolean',
     ];
+    
+    /**
+     * Get the formatted image URL for the product
+     * 
+     * @return string
+     */
+    public function getImageUrlAttribute($value)
+    {
+        if (!$value) {
+            return null;
+        }
+        
+        // If it's already a full URL, return it as is
+        if (filter_var($value, FILTER_VALIDATE_URL)) {
+            return $value;
+        }
+        
+        // If it's a storage path, add the storage prefix for the asset() helper
+        if (strpos($value, 'products/') === 0) {
+            return 'storage/' . $value;
+        }
+        
+        // For any other local path
+        return $value;
+    }
 
     public function category()
     {

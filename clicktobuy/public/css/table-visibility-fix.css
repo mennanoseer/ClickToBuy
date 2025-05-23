@@ -101,10 +101,13 @@
 }
 
 /* Fix for status colors in tables */
-td .status-badge {
+td .status-badge,
+td .order-status-badge {
     min-width: 80px;
     text-align: center;
-    display: inline-block;
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 /* Ensure all tables throughout admin have visible text */

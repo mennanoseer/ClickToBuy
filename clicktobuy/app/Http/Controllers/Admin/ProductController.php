@@ -109,7 +109,7 @@ class ProductController extends Controller
             'stock' => $request->stock,
             'is_active' => $request->is_active == 1 ? true : false,
             'category_id' => $request->category_id,
-            'image' => $imagePath,
+            'image_url' => $imagePath,
         ]);
 
         return redirect()->route('admin.products.index')
@@ -150,15 +150,21 @@ class ProductController extends Controller
 
         $product = Product::findOrFail($id);
 
-        // Handle image upload
+        // Handle image upload or removal
         if ($request->hasFile('image')) {
-            // Delete old image if exists
-            if ($product->image) {
-                Storage::disk('public')->delete($product->image);
+            // Delete old image if exists and it's not an external URL
+            if ($product->image_url && !filter_var($product->image_url, FILTER_VALIDATE_URL)) {
+                Storage::disk('public')->delete($product->image_url);
             }
             
             $imagePath = $request->file('image')->store('products', 'public');
-            $product->image = $imagePath;
+            $product->image_url = $imagePath;
+        } elseif ($request->has('remove_image') && $request->remove_image == 1) {
+            // If user wants to remove the image
+            if ($product->image_url && !filter_var($product->image_url, FILTER_VALIDATE_URL)) {
+                Storage::disk('public')->delete($product->image_url);
+            }
+            $product->image_url = null;
         }
 
         $product->name = $request->name;
@@ -183,9 +189,9 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
         
-        // Delete the product image
-        if ($product->image) {
-            Storage::disk('public')->delete($product->image);
+        // Delete the product image if it's a local file
+        if ($product->image_url && !filter_var($product->image_url, FILTER_VALIDATE_URL)) {
+            Storage::disk('public')->delete($product->image_url);
         }
         
         $product->delete();
