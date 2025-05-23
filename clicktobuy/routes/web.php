@@ -75,6 +75,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     
     // Admin product management
     Route::resource('products', AdminProductController::class);
+    Route::post('products/import', [AdminProductController::class, 'importExternalProducts'])->name('products.import');
     
     // Admin order management
     Route::get('orders', [AdminOrderController::class, 'index'])->name('orders.index');

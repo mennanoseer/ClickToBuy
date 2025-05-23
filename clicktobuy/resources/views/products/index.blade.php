@@ -110,7 +110,15 @@
                     @foreach($products as $product)
                         <div class="col-md-4 mb-4">
                             <div class="card h-100">
-                                <img src="https://via.placeholder.com/300x200?text={{ urlencode($product->name) }}" class="card-img-top" alt="{{ $product->name }}">
+                                @if($product->image_url)
+                                    @if(filter_var($product->image_url, FILTER_VALIDATE_URL))
+                                        <img src="{{ $product->image_url }}" class="card-img-top" alt="{{ $product->name }}" style="height: 200px; object-fit: contain;">
+                                    @else
+                                        <img src="{{ asset($product->image_url) }}" class="card-img-top" alt="{{ $product->name }}" style="height: 200px; object-fit: contain;">
+                                    @endif
+                                @else
+                                    <img src="https://via.placeholder.com/300x200?text={{ urlencode($product->name) }}" class="card-img-top" alt="{{ $product->name }}" style="height: 200px; object-fit: contain;">
+                                @endif
                                 <div class="card-body">
                                     <h5 class="card-title">{{ $product->name }}</h5>
                                     <p class="card-text text-truncate">{{ $product->description }}</p>

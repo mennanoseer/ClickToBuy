@@ -193,4 +193,25 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index')
             ->with('success', 'Product deleted successfully!');
     }
+
+    /**
+     * Import products from external API
+     *
+     * @param Request $request
+     * @param ExternalProductService $productService
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function importExternalProducts(Request $request, \App\Services\ExternalProductService $productService)
+    {
+        $count = $request->input('count', 10);
+        $imported = $productService->importProductsFromAPI($count);
+        
+        if ($imported > 0) {
+            return redirect()->route('admin.products.index')
+                ->with('success', "{$imported} products were successfully imported!");
+        }
+        
+        return redirect()->route('admin.products.index')
+            ->with('error', "Failed to import products. Please try again.");
+    }
 }

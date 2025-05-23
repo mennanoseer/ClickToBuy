@@ -54,7 +54,15 @@
         <div class="col-md-5 mb-4">
             <div class="card">
                 <div class="card-body">
-                    <img src="https://via.placeholder.com/500x500?text={{ urlencode($product->name) }}" class="img-fluid" alt="{{ $product->name }}">
+                    @if($product->image_url)
+                        @if(filter_var($product->image_url, FILTER_VALIDATE_URL))
+                            <img src="{{ $product->image_url }}" class="img-fluid product-image" alt="{{ $product->name }}">
+                        @else
+                            <img src="{{ asset($product->image_url) }}" class="img-fluid product-image" alt="{{ $product->name }}">
+                        @endif
+                    @else
+                        <img src="https://via.placeholder.com/500x500?text={{ urlencode($product->name) }}" class="img-fluid" alt="{{ $product->name }}">
+                    @endif
                 </div>
             </div>
         </div>
@@ -205,7 +213,15 @@
             @foreach($relatedProducts as $relatedProduct)
                 <div class="col-md-3 mb-4">
                     <div class="card h-100">
-                        <img src="https://via.placeholder.com/300x300?text={{ urlencode($relatedProduct->name) }}" class="card-img-top" alt="{{ $relatedProduct->name }}">
+                        @if($relatedProduct->image_url)
+                            @if(filter_var($relatedProduct->image_url, FILTER_VALIDATE_URL))
+                                <img src="{{ $relatedProduct->image_url }}" class="card-img-top" alt="{{ $relatedProduct->name }}" style="height: 200px; object-fit: contain;">
+                            @else
+                                <img src="{{ asset($relatedProduct->image_url) }}" class="card-img-top" alt="{{ $relatedProduct->name }}" style="height: 200px; object-fit: contain;">
+                            @endif
+                        @else
+                            <img src="https://via.placeholder.com/300x300?text={{ urlencode($relatedProduct->name) }}" class="card-img-top" alt="{{ $relatedProduct->name }}" style="height: 200px; object-fit: contain;">
+                        @endif
                         <div class="card-body">
                             <h5 class="card-title">{{ $relatedProduct->name }}</h5>
                             <p class="card-text text-truncate">{{ $relatedProduct->description }}</p>

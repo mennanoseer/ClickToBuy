@@ -314,7 +314,11 @@
                                     <td>
                                         <div class="d-flex align-items-center">
                                             @if($item->product && $item->product->image_url)
-                                                <img src="{{ asset($item->product->image_url) }}" alt="{{ $item->product_name ?? $item->product->product_name }}" class="img-thumbnail mr-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                                @if(filter_var($item->product->image_url, FILTER_VALIDATE_URL))
+                                                    <img src="{{ $item->product->image_url }}" alt="{{ $item->product_name ?? $item->product->product_name }}" class="img-thumbnail mr-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                                @else
+                                                    <img src="{{ asset($item->product->image_url) }}" alt="{{ $item->product_name ?? $item->product->product_name }}" class="img-thumbnail mr-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                                @endif
                                             @endif
                                             <div>
                                                 <div class="font-weight-bold">{{ $item->product_name ?? $item->product->product_name }}</div>

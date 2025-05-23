@@ -19,7 +19,15 @@
                         <div class="col-md-6 col-lg-4 mb-4">
                             <div class="card h-100">
                                 <div class="position-relative">
-                                    <img src="https://via.placeholder.com/300x200?text={{ urlencode($item->product->name) }}" class="card-img-top" alt="{{ $item->product->name }}">
+                                    @if($item->product->image_url)
+                                        @if(filter_var($item->product->image_url, FILTER_VALIDATE_URL))
+                                            <img src="{{ $item->product->image_url }}" class="card-img-top" alt="{{ $item->product->name }}" style="height: 200px; object-fit: contain;">
+                                        @else
+                                            <img src="{{ asset($item->product->image_url) }}" class="card-img-top" alt="{{ $item->product->name }}" style="height: 200px; object-fit: contain;">
+                                        @endif
+                                    @else
+                                        <img src="https://via.placeholder.com/300x200?text={{ urlencode($item->product->name) }}" class="card-img-top" alt="{{ $item->product->name }}" style="height: 200px; object-fit: contain;">
+                                    @endif
                                     <form action="{{ route('wishlist.remove', $item->wishlist_item_id) }}" method="POST" class="position-absolute top-0 end-0 m-2">
                                         @csrf
                                         @method('DELETE')

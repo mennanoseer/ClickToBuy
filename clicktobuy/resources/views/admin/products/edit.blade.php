@@ -193,7 +193,11 @@
                                 <div class="current-image mb-3">
                                     <label>Current Image:</label>
                                     <div class="mt-2 mb-3">
-                                        <img src="{{ asset($product->image_url) }}" class="img-fluid img-thumbnail" style="max-height: 200px;" alt="{{ $product->name }}">
+                                        @if(filter_var($product->image_url, FILTER_VALIDATE_URL))
+                                            <img src="{{ $product->image_url }}" class="img-fluid img-thumbnail" style="max-height: 200px;" alt="{{ $product->name }}">
+                                        @else
+                                            <img src="{{ asset($product->image_url) }}" class="img-fluid img-thumbnail" style="max-height: 200px;" alt="{{ $product->name }}">
+                                        @endif
                                     </div>
                                     
                                     <div class="form-check mb-3">

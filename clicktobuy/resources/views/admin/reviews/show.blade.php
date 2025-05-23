@@ -70,7 +70,11 @@
                 <div class="card-body">
                     <div class="text-center mb-3">
                         @if($review->product && $review->product->image_url)
-                            <img src="{{ asset($review->product->image_url) }}" alt="{{ $review->product->name ?? 'Product Image' }}" class="img-fluid img-thumbnail" style="max-height: 150px;">
+                            @if(filter_var($review->product->image_url, FILTER_VALIDATE_URL))
+                                <img src="{{ $review->product->image_url }}" alt="{{ $review->product->name ?? 'Product Image' }}" class="img-fluid img-thumbnail" style="max-height: 150px;">
+                            @else
+                                <img src="{{ asset($review->product->image_url) }}" alt="{{ $review->product->name ?? 'Product Image' }}" class="img-fluid img-thumbnail" style="max-height: 150px;">
+                            @endif
                         @else
                             <div class="bg-light p-4 rounded">
                                 <i class="fas fa-image fa-3x text-secondary"></i>

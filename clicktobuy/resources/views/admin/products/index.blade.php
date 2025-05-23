@@ -4,9 +4,40 @@
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Products</h1>
-        <a href="{{ route('admin.products.create') }}" class="d-none d-sm-inline-block btn btn-primary shadow-sm">
-            <i class="fas fa-plus fa-sm text-white-50"></i> Add New Product
-        </a>
+        <div>
+            <button type="button" class="btn btn-success shadow-sm mr-2" data-bs-toggle="modal" data-bs-target="#importProductsModal">
+                <i class="fas fa-download fa-sm text-white-50"></i> Import Products
+            </button>
+            <a href="{{ route('admin.products.create') }}" class="btn btn-primary shadow-sm">
+                <i class="fas fa-plus fa-sm text-white-50"></i> Add New Product
+            </a>
+        </div>
+    </div>
+    
+    <!-- Import Products Modal -->
+    <div class="modal fade" id="importProductsModal" tabindex="-1" aria-labelledby="importProductsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="importProductsModalLabel">Import Products</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('admin.products.import') }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="productCount">Number of products to import</label>
+                            <input type="number" class="form-control" id="productCount" name="count" min="1" max="50" value="10">
+                            <small class="form-text text-muted">Products will be imported from Fake Store API</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Import</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
     <div class="card shadow mb-4">
@@ -76,7 +107,11 @@
                             <td>{{ $product->product_id }}</td>
                             <td>
                                 @if($product->image_url)
-                                    <img src="{{ asset($product->image_url) }}" alt="{{ $product->name }}" class="img-thumbnail" width="50">
+                                    @if(filter_var($product->image_url, FILTER_VALIDATE_URL))
+                                        <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="img-thumbnail" width="50">
+                                    @else
+                                        <img src="{{ asset($product->image_url) }}" alt="{{ $product->name }}" class="img-thumbnail" width="50">
+                                    @endif
                                 @else
                                     <span class="badge bg-secondary">No Image</span>
                                 @endif

@@ -39,7 +39,15 @@
                                         <tr>
                                             <td>
                                                 <div class="d-flex align-items-center">
-                                                    <img src="https://via.placeholder.com/80x80?text={{ urlencode($item->product->name) }}" class="img-thumbnail me-3" style="width: 80px;" alt="{{ $item->product->name }}">
+                                                    @if($item->product->image_url)
+                                                        @if(filter_var($item->product->image_url, FILTER_VALIDATE_URL))
+                                                            <img src="{{ $item->product->image_url }}" class="img-thumbnail me-3" style="width: 80px; height: 80px; object-fit: contain;" alt="{{ $item->product->name }}">
+                                                        @else
+                                                            <img src="{{ asset($item->product->image_url) }}" class="img-thumbnail me-3" style="width: 80px; height: 80px; object-fit: contain;" alt="{{ $item->product->name }}">
+                                                        @endif
+                                                    @else
+                                                        <img src="https://via.placeholder.com/80x80?text={{ urlencode($item->product->name) }}" class="img-thumbnail me-3" style="width: 80px;" alt="{{ $item->product->name }}">
+                                                    @endif
                                                     <div>
                                                         <h6 class="mb-0">
                                                             <a href="{{ route('products.show', $item->product->product_id) }}" class="text-decoration-none">
