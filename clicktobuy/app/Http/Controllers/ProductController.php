@@ -25,7 +25,7 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        Log::info('Product index called with sort parameter:', ['sort' => $request->sort]);
+        Log::info('Product index called');
         
         $query = Product::where('is_active', true);
 
@@ -51,32 +51,8 @@ class ProductController extends Controller
             });
         }
 
-        // Sorting
-        $sort = $request->get('sort', '');
-        Log::info('Applying sort:', ['sort_value' => $sort]);
-
-        switch($sort) {
-            case 'price_low':
-                Log::info('Sorting by price ascending');
-                $query->orderBy('price', 'asc');
-                break;
-            case 'price_high':
-                Log::info('Sorting by price descending');
-                $query->orderBy('price', 'desc');
-                break;
-            case 'name':
-                Log::info('Sorting by name');
-                $query->orderBy('name', 'asc');
-                break;
-            case 'newest':
-                Log::info('Sorting by newest');
-                $query->orderBy('created_at', 'desc');
-                break;
-            default:
-                Log::info('Using default sort (created_at desc)');
-                $query->orderBy('created_at', 'desc');
-                break;
-        }
+        // Default sorting - always sort by newest products first
+        $query->orderBy('created_at', 'desc');
 
         $products = $query->paginate(12)->withQueryString();
         Log::info('Query executed, product count:', ['count' => $products->count()]);

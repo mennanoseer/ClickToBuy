@@ -25,10 +25,17 @@
                 <form action="{{ route('admin.products.import') }}" method="POST">
                     @csrf
                     <div class="modal-body">
+                        <div class="form-group mb-3">
+                            <label for="productSource">Data Source</label>
+                            <select class="form-control" id="productSource" name="source">
+                                <option value="dummyjson">DummyJSON API (up to 100 products)</option>
+                                <option value="fakestoreapi">Fake Store API (up to 20 products)</option>
+                            </select>
+                        </div>
                         <div class="form-group">
                             <label for="productCount">Number of products to import</label>
-                            <input type="number" class="form-control" id="productCount" name="count" min="1" max="50" value="10">
-                            <small class="form-text text-muted">Products will be imported from Fake Store API</small>
+                            <input type="number" class="form-control" id="productCount" name="count" min="1" max="100" value="50">
+                            <small class="form-text text-muted" id="sourceInfo">Select the data source and number of products to import</small>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -163,11 +170,31 @@
 @section('scripts')
 <script>
     $(document).ready(function() {
+        // Handle data source selection
+        $('#productSource').change(function() {
+            const source = $(this).val();
+            const countInput = $('#productCount');
+            const infoText = $('#sourceInfo');
+            
+            if (source === 'fakestoreapi') {
+                countInput.attr('max', 20);
+                if (parseInt(countInput.val()) > 20) {
+                    countInput.val(20);
+                }
+                infoText.text('Fake Store API provides up to 20 products');
+            } else if (source === 'dummyjson') {
+                countInput.attr('max', 100);
+                infoText.text('DummyJSON API provides up to 100 products');
+            }
+        });
+        
+        // Initialize with the default selected option
+        $('#productSource').trigger('change');
+        
         $('#productsTable').DataTable({
             "paging": false,
             "info": false,
-            "ordering": true,
-            "order": [[0, 'desc']]
+            "ordering": false // Disable ordering/sorting
         });
     });
 </script>

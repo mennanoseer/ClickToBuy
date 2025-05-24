@@ -93,16 +93,6 @@
         <div class="col-md-9">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2>{{ request('search') ? 'Search Results' : 'All Products' }}</h2>
-                
-                <div class="d-flex align-items-center">
-                    <span class="me-2">Sort by:</span>
-                    <select class="form-select form-select-sm" id="sort-select" style="width: auto;">
-                        <option value="created_at-desc" {{ (request('sort_by') == 'created_at' && request('sort_order') == 'desc') ? 'selected' : '' }}>Newest</option>
-                        <option value="price-asc" {{ (request('sort_by') == 'price' && request('sort_order') == 'asc') ? 'selected' : '' }}>Price: Low to High</option>
-                        <option value="price-desc" {{ (request('sort_by') == 'price' && request('sort_order') == 'desc') ? 'selected' : '' }}>Price: High to Low</option>
-                        <option value="name-asc" {{ (request('sort_by') == 'name' && request('sort_order') == 'asc') ? 'selected' : '' }}>Name: A to Z</option>
-                    </select>
-                </div>
             </div>
             
             @if($products->count() > 0)
@@ -171,15 +161,5 @@
     </div>
 </div>
 
-@push('scripts')
-<script>
-    document.getElementById('sort-select').addEventListener('change', function() {
-        const [sortBy, sortOrder] = this.value.split('-');
-        const url = new URL(window.location);
-        url.searchParams.set('sort_by', sortBy);
-        url.searchParams.set('sort_order', sortOrder);
-        window.location.href = url.toString();
-    });
-</script>
-@endpush
+
 @endsection

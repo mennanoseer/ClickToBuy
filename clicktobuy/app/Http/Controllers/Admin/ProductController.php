@@ -210,11 +210,14 @@ class ProductController extends Controller
     public function importExternalProducts(Request $request, \App\Services\ExternalProductService $productService)
     {
         $count = $request->input('count', 10);
-        $imported = $productService->importProductsFromAPI($count);
+        $source = $request->input('source', 'fakestoreapi');
+        
+        $imported = $productService->importProductsFromAPI($count, $source);
         
         if ($imported > 0) {
+            $sourceName = $source === 'dummyjson' ? 'DummyJSON API' : 'Fake Store API';
             return redirect()->route('admin.products.index')
-                ->with('success', "{$imported} products were successfully imported!");
+                ->with('success', "{$imported} products were successfully imported from {$sourceName}!");
         }
         
         return redirect()->route('admin.products.index')

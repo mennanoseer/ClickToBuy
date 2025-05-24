@@ -12,7 +12,9 @@ class ImportExternalProducts extends Command
      *
      * @var string
      */
-    protected $signature = 'products:import {count=20 : Number of products to import}';
+    protected $signature = 'products:import 
+                            {count=50 : Number of products to import} 
+                            {--source=dummyjson : API source (dummyjson, fakestoreapi)}';
 
     /**
      * The console command description.
@@ -29,11 +31,13 @@ class ImportExternalProducts extends Command
     public function handle(ExternalProductService $productService)
     {
         $count = $this->argument('count');
-        $this->info("Importing {$count} products from external API...");
+        $source = $this->option('source');
         
-        $imported = $productService->importProductsFromAPI($count);
+        $this->info("Importing {$count} products from {$source}...");
         
-        $this->info("Successfully imported {$imported} products!");
+        $imported = $productService->importProductsFromAPI($count, $source);
+        
+        $this->info("Successfully imported {$imported} products from {$source}!");
         
         return Command::SUCCESS;
     }

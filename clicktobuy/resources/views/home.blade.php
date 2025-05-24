@@ -10,7 +10,7 @@
                 <h1 class="display-4 fw-bold">Welcome to ClickToBuy</h1>
                 <p class="lead my-4">Discover amazing products at unbeatable prices.</p>
                 <a href="{{ route('products.index') }}" class="btn btn-primary btn-lg px-4 me-md-2">Shop Now</a>
-                <a href="{{ route('products.index', ['sort_by' => 'created_at', 'sort_order' => 'desc']) }}" class="btn btn-outline-light btn-lg px-4">New Arrivals</a>
+                <a href="{{ route('products.index') }}" class="btn btn-outline-light btn-lg px-4">New Arrivals</a>
             </div>
         </div>
     </div>
@@ -87,7 +87,7 @@
     <div class="featured-products-section mb-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="m-0">Featured Products</h2>
-            <a href="{{ route('products.index', ['sort_by' => 'created_at', 'sort_order' => 'desc']) }}" class="text-decoration-none">View All Featured</a>
+            <a href="{{ route('products.index') }}" class="text-decoration-none">View All Featured</a>
         </div>
         
         <div class="row">        @foreach($featuredProducts as $product)
