@@ -90,11 +90,14 @@ class ExternalProductService
                 $category = Category::firstOrCreate(
                     ['name' => $productData['category']],
                     ['name' => $productData['category']]
-                );                // Create the product
+                );
+                
+                // Create the product
                 Product::updateOrCreate(
                     ['name' => $productData['title']],
                     [
-                        'category_id' => $category->category_id,'description' => $productData['description'], // Now we can use the full description
+                        'category_id' => $category->category_id,
+                        'description' => $productData['description'],
                         'price' => $productData['price'],
                         'stock' => rand(0, 50), // Random stock value
                         'image_url' => $productData['image'],
@@ -108,5 +111,63 @@ class ExternalProductService
         }
         
         return 0;
+    }
+
+    /**
+     * Generate synthetic product data for testing
+     * 
+     * @param int $count Number of products to generate
+     * @return int Number of products generated
+     */
+    public function generateSyntheticProducts($count = 100)
+    {
+        $categories = [
+            'Electronics',
+            'Clothing',
+            'Furniture',
+            'Books',
+            'Toys',
+            'Beauty',
+            'Sports',
+            'Home',
+            'Jewelry',
+            'Automotive'
+        ];
+
+        $generated = 0;
+        for ($i = 0; $i < $count; $i++) {
+            // Find or create a random category
+            $categoryName = $categories[array_rand($categories)];
+            $category = Category::firstOrCreate(
+                ['name' => $categoryName],
+                ['name' => $categoryName]
+            );
+
+            // Generate a product
+            $productName = "Synthetic Product " . ($i + 1);
+            $productDesc = "This is a synthetically generated product for testing purposes. It belongs to the {$categoryName} category.";
+            $price = rand(999, 9999) / 100; // Random price between 9.99 and 99.99
+            $stock = rand(0, 100);
+            
+            // Create sample image URLs that point to placeholder services
+            $imageWidth = rand(400, 800);
+            $imageHeight = rand(400, 800);
+            $imageUrl = "https://via.placeholder.com/{$imageWidth}x{$imageHeight}?text=Synthetic+Product+" . ($i + 1);
+            
+            Product::create([
+                'name' => $productName,
+                'description' => $productDesc,
+                'price' => $price,
+                'stock' => $stock,
+                'category_id' => $category->category_id,
+                'image_url' => $imageUrl,
+                'is_active' => true,
+                'units_sold' => rand(0, 1000)
+            ]);
+            
+            $generated++;
+        }
+        
+        return $generated;
     }
 }

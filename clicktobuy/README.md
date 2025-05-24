@@ -1,15 +1,6 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# ClickToBuy - E-Commerce Platform
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
-
-# ClickToBuy - Laravel E-Commerce Website
-
-This is a complete MVC e-commerce website built with Laravel.
+ClickToBuy is a fully-featured MVC e-commerce application built with Laravel, providing a comprehensive online shopping experience for customers and powerful management tools for administrators.
 
 ## Requirements
 
@@ -81,76 +72,158 @@ This is a complete MVC e-commerce website built with Laravel.
    - Email: customer@example.com
    - Password: password
 
+## External Data Integration
+
+ClickToBuy supports importing product data from external sources:
+
+### Available API Sources
+
+1. **Fake Store API** - Limited to 20 products
+   - Simple product data with categories
+   - Access using the admin panel or CLI command
+
+2. **DummyJSON API** - Up to 100 products
+   - Detailed product data with multiple images
+   - More product attributes and data variety
+
+### Importing Products
+
+#### Via Admin Panel
+
+1. Log in as an admin user
+2. Go to the Products section
+3. Click the "Import Products" button
+4. Select data source and number of products
+5. Click "Import"
+
+#### Via CLI (Command Line Interface)
+
+Import products from external API:
+```bash
+php artisan products:import [count] --source=[dummyjson|fakestoreapi]
+```
+Example:
+```bash
+php artisan products:import 50 --source=dummyjson
+```
+
+Generate synthetic test products:
+```bash
+php artisan products:generate [count]
+```
+Example:
+```bash
+php artisan products:generate 1000
+```
+
 ## Features
 
-- User authentication and authorization
-- Product browsing and searching
-- Product categories and subcategories
-- Shopping cart functionality
-- Wishlist management
-- Checkout process
-- Order tracking
-- Admin dashboard
-- Product management
-- Order management
-- Customer management
-- Reviews system
-- And more!
+### Customer Features
 
-## About Laravel
+- **User Authentication**: Secure login, registration, and password recovery
+- **Product Browsing**: Browse products by category with filtering and search
+- **Shopping Cart**: Add/remove items, update quantities
+- **Wishlist**: Save products for future reference
+- **Checkout Process**: Multiple payment options with secure processing
+- **Order Tracking**: View order history and track shipment status
+- **User Profile**: Manage personal information and view order history
+- **Reviews and Ratings**: Leave feedback on purchased products
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Admin Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Dashboard**: Overview of sales, recent orders, and low stock alerts
+- **Product Management**: Add, edit, delete products and manage inventory
+- **Order Management**: Process orders, update status, generate invoices
+- **Customer Management**: View and manage customer accounts and details
+- **Category Management**: Organize products with hierarchical categories
+- **Review Moderation**: Approve, edit, or remove customer reviews
+- **External Data Integration**: Import products from external APIs
+- **Statistical Reports**: Sales reports, popular products, and customer analytics
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Technical Features
 
-## Learning Laravel
+- **MVC Architecture**: Clean separation of concerns for maintainability
+- **Responsive Design**: Works across desktop and mobile devices
+- **Data Validation**: Robust server-side and client-side validation
+- **Security**: CSRF protection, input sanitization, and secure authentication
+- **Multiple Payment Methods**: Credit Card, PayPal, and Bank Transfer
+- **Image Handling**: Support for both local and external image URLs
+- **External Data Integration**: API connections to import product data
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Database Structure
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+ClickToBuy uses a relational database with the following key tables:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- **users**: User authentication data
+- **customers**: Customer-specific information
+- **admins**: Admin-specific information
+- **products**: Product details and inventory
+- **categories**: Product categories with hierarchy
+- **orders**: Customer orders with status tracking
+- **payments**: Payment information with polymorphic relations
+- **reviews**: Product reviews and ratings
 
-## Laravel Sponsors
+## Product Image Handling
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+The system supports both local image uploads and external image URLs:
 
-### Premium Partners
+- Local images are stored in: `storage/app/public/products/`
+- External images are used directly from their sources
+- Image type detection is automatic using `filter_var($url, FILTER_VALIDATE_URL)`
+- The product model has a dynamic accessor for the correct image path
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+## Troubleshooting
 
-## Contributing
+### Common Issues
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+1. **Database Connection Issues**
+   - Verify your database credentials in the `.env` file
+   - Ensure MySQL service is running
 
-## Code of Conduct
+2. **Image Upload Problems**
+   - Check storage permissions
+   - Verify the symbolic link is created: `php artisan storage:link`
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+3. **External API Import Failures**
+   - Check your internet connection
+   - Some APIs may have rate limits or require authentication
 
-## Security Vulnerabilities
+4. **Product Description Length**
+   - If importing descriptions fails, ensure you've run the migration: 
+     `php artisan migrate --path=database/migrations/2025_05_23_000000_modify_product_description_column.php`
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Debug Mode
+
+For development environments, enable debug mode in your `.env` file:
+```
+APP_DEBUG=true
+```
+
+## Technology Stack
+
+ClickToBuy is built using the following technologies:
+
+- **Backend Framework**: Laravel 10.x
+- **Database**: MySQL
+- **Frontend**: Bootstrap, jQuery, JavaScript
+- **Template Engine**: Blade
+- **Authentication**: Laravel Built-in Auth
+- **CSS Preprocessor**: SASS
+- **Package Management**: Composer, NPM
+- **Deployment**: Supports standard Laravel deployment methods
+
+## Recent Updates
+
+The latest updates to the ClickToBuy platform include:
+
+- External Data Integration from multiple API sources
+- Database schema optimization for product descriptions
+- Enhanced image handling for both local and external URLs
+- Fixed display issues in product listings
+- Removal of non-working sorting functionality
+- Better product import experience via UI
+- Command-line tools for product data management
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+ClickToBuy is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
