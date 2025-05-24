@@ -1,0 +1,141 @@
+/* 
+* Table Visibility Fix
+* This stylesheet ensures all text in the admin tables is visible 
+* by enforcing proper text colors against white backgrounds
+*/
+
+/* Global table text visibility */
+.table {
+    color: #212529 !important;
+}
+
+.table th,
+.table td {
+    color: #212529 !important;
+}
+
+/* Table headers */
+.table thead th {
+    background-color: #f8f9fa !important;
+    font-weight: 600 !important;
+    color: #495057 !important;
+}
+
+/* Ensure specific columns are visible */
+.table td img {
+    border: 1px solid #dee2e6;
+}
+
+/* Badge styles to ensure visibility */
+.badge {
+    color: white !important;
+    font-weight: 600 !important;
+}
+
+/* Bootstrap 5 badge classes */
+.badge.bg-success {
+    background-color: #28a745 !important;
+}
+
+.badge.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+.badge.bg-warning {
+    background-color: #ffc107 !important;
+    color: #212529 !important; /* Dark text on yellow background */
+}
+
+.badge.bg-info {
+    background-color: #17a2b8 !important;
+}
+
+.badge.bg-secondary {
+    background-color: #6c757d !important;
+}
+
+.badge.bg-primary {
+    background-color: #007bff !important;
+}
+
+/* Legacy Bootstrap 4 badge classes - for backward compatibility */
+.badge.badge-success {
+    background-color: #28a745 !important;
+    color: white !important;
+}
+
+.badge.badge-danger {
+    background-color: #dc3545 !important;
+    color: white !important;
+}
+
+.badge.badge-warning {
+    background-color: #ffc107 !important;
+    color: #212529 !important;
+}
+
+.badge.badge-info {
+    background-color: #17a2b8 !important;
+    color: white !important;
+}
+
+.badge.badge-secondary {
+    background-color: #6c757d !important;
+    color: white !important;
+}
+
+.badge.badge-primary {
+    background-color: #007bff !important;
+    color: white !important;
+}
+
+/* Fix for links in tables */
+.table td a {
+    color: #007bff !important;
+    font-weight: 500 !important;
+}
+
+.table td a:hover {
+    color: #0056b3 !important;
+    text-decoration: underline !important;
+}
+
+/* Fix for status colors in tables */
+td .status-badge,
+td .order-status-badge {
+    min-width: 80px;
+    text-align: center;
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Ensure all tables throughout admin have visible text */
+#productsTable td,
+#categoriesTable td,
+#ordersTable td,
+#customersTable td,
+#reviewsTable td,
+.table-responsive table td {
+    color: #212529 !important;
+}
+
+/* Ensure description columns are visible */
+td:nth-child(3) {
+    color: #212529 !important;
+    font-weight: normal;
+}
+
+/* Ensure stock count is visible */
+td:nth-child(6) .badge {
+    min-width: 40px;
+    text-align: center;
+}
+
+/* Ensure count columns are visible */
+td .badge-info,
+td .bg-info {
+    min-width: 30px;
+    text-align: center;
+    display: inline-block;
+}

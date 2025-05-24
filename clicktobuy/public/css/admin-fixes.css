@@ -1,0 +1,154 @@
+/* Add styles for better font visibility and color contrast */
+/* General text colors */
+.text-white-color {
+    color: #333 !important; 
+}
+
+/* Override any text that might be white on white background */
+.text-white {
+    color: #333 !important;
+}
+
+/* Fix for images in tables */
+td img {
+    border: 1px solid #dee2e6;
+}
+
+/* Ensure all text in tables and cards is visible */
+.card, .table {
+    color: #333 !important;
+}
+
+/* Pagination styling - make pagination controls more visible and reduce size */
+.pagination .page-item .page-link {
+    color: #0d6efd;
+    background-color: #fff;
+    border-color: #dee2e6;
+    font-size: 0.9rem;
+    padding: 0.3rem 0.6rem;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
+    font-weight: bold;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+}
+
+/* Fix for pagination icons */
+.pagination .page-link {
+    font-size: 0.9rem;
+}
+
+/* Fix for pagination arrow icons size */
+.pagination .page-item .page-link[rel="prev"],
+.pagination .page-item .page-link[rel="next"] {
+    font-size: 0.8rem !important;
+    padding: 0.4rem 0.7rem;
+}
+
+/* Fix for chevron/arrow icons in pagination */
+.pagination .page-link span[aria-hidden="true"] {
+    font-size: 0.8rem !important;
+}
+
+/* Make button texts visible on darker backgrounds */
+.btn-primary, .btn-info, .btn-success, .btn-danger, .btn-warning {
+    color: #fff !important;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.2);
+}
+
+/* Badge text styling */
+.badge {
+    font-weight: 600;
+    font-size: 0.8rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* Notification dropdown styling */
+.notification-item {
+    border-left: 3px solid transparent;
+    transition: all 0.2s;
+}
+
+.notification-item.unread {
+    border-left-color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+.notification-item:hover {
+    background-color: rgba(0,0,0,0.03);
+}
+
+.dropdown-menu {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* Table styling for better readability */
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+}
+
+.table td {
+    color: #212529;
+}
+
+/* Fix badge text contrast */
+td .badge {
+    color: white !important;
+}
+
+/* Fix for badge text contrast */
+.badge.badge-success {
+    background-color: #28a745;
+    color: white !important;
+}
+
+.badge.badge-danger {
+    background-color: #dc3545;
+    color: white !important;
+}
+
+.badge.badge-warning {
+    background-color: #ffc107;
+    color: #212529 !important;
+}
+
+.badge.badge-info {
+    background-color: #17a2b8;
+    color: white !important;
+}
+
+.badge.badge-secondary {
+    background-color: #6c757d;
+    color: white !important;
+}
+
+.badge.badge-primary {
+    background-color: #007bff;
+    color: white !important;
+}
+
+/* Home button styling */
+.home-link {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    margin-right: 15px;
+}
+
+.home-link i {
+    margin-right: 5px;
+}
+
+.home-link:hover {
+    color: #f8f9fa;
+}
